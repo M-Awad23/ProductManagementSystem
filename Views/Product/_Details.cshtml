@@ -1,0 +1,44 @@
+﻿@model ProductManagementSystem.Models.Product
+
+<div class="product-details">
+
+    <div class="retro-panel-header">
+        <h2>PRODUCT DETAILS</h2>
+        <p>PRODUCT #@Model.Id</p>
+    </div>
+
+    <div class="detail-row">
+        <div class="detail-label">Name</div>
+        <div class="detail-value">@Model.Name</div>
+    </div>
+
+    <div class="detail-row">
+        <div class="detail-label">Description</div>
+        <div class="detail-value">@Model.Description</div>
+    </div>
+
+    <div class="detail-row">
+        <div class="detail-label">Price</div>
+        <div class="detail-value">$@Model.Price</div>
+    </div>
+
+    <div class="detail-row">
+        <div class="detail-label">Quantity</div>
+        <div class="detail-value">@Model.Quantity</div>
+    </div>
+
+    <div class="detail-row">
+        <div class="detail-label">Created</div>
+        <div class="detail-value">@Model.CreatedAt</div>
+    </div>
+
+    <div class="form-actions">
+
+        <button class="btn btn-secondary"
+                onclick="closeModal()">
+            CLOSE
+        </button>
+
+    </div>
+
+</div>

@@ -1,0 +1,35 @@
+﻿@model ProductManagementSystem.Models.User
+
+<h1>My Profile</h1>
+
+<div>
+    <strong>Email:</strong>
+    <span data-user-email>@Model.Email</span>
+</div>
+
+<div>
+    <strong>Username:</strong>
+    @Model.UserName
+</div>
+
+<br />
+
+<button type="button"
+        id="changeEmailButton"
+        class="btn btn-primary">
+    Change Email
+</button>
+<div id="changeEmailContainer"></div>
+
+<button type="button"
+        id="changePasswordButton"
+        class="btn btn-secondary">
+    Change Password
+</button>
+
+
+<div id="changePasswordContainer"></div>
+
+@section Scripts {
+    <script src="~/js/account.js"></script>
+}

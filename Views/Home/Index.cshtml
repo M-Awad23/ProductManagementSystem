@@ -1,0 +1,47 @@
+﻿@{
+    ViewData["Title"] = "Home";
+}
+
+<div class="text-center py-5">
+
+    @if (User.Identity?.IsAuthenticated == true)
+    {
+        <h1 class="display-4 fw-bold">
+            Product Management System
+        </h1>
+
+      
+
+        <div class="mt-4">
+            <a asp-controller="Product"
+               asp-action="Index"
+               class="btn btn-primary btn-lg">
+                View My Products
+            </a>
+        </div>
+    }
+    else
+    {
+        <h1 class="display-4 fw-bold">
+            Product Management System
+        </h1>
+
+        <p class="lead text-muted">
+        </p>
+
+        <div class="mt-4">
+            <a asp-controller="Account"
+               asp-action="Login"
+               class="btn btn-primary btn-lg">
+                Login
+            </a>
+
+            <a asp-controller="Account"
+               asp-action="Register"
+               class="btn btn-outline-primary btn-lg ms-2">
+                Create Account
+            </a>
+        </div>
+    }
+
+</div>

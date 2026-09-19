@@ -1,0 +1,38 @@
+﻿@model ProductManagementSystem.Models.ChangeEmailViewModel
+
+<div class="retro-panel">
+
+    <div class="retro-panel-header">
+        <h2>Change Email</h2>
+        <p>Update the email address associated with your account.</p>
+    </div>
+
+    <form id="changeEmailForm" method="post">
+
+        @Html.AntiForgeryToken()
+
+        <div>
+            <label asp-for="NewEmail" class="form-label-retro">
+                New Email
+            </label>
+
+            <input asp-for="NewEmail"
+                   class="form-control-retro"
+                   placeholder="Enter your new email" />
+
+            <span asp-validation-for="NewEmail"
+                  class="text-danger">
+            </span>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">
+                Change Email
+            </button>
+        </div>
+
+    </form>
+
+    <div id="changeEmailMessage"></div>
+
+</div>

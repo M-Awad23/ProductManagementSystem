@@ -1,0 +1,56 @@
+﻿@model IEnumerable<ProductManagementSystem.Models.Product>
+
+<div class="product-grid">
+
+    @foreach (var product in Model)
+    {
+        <div class="product-card">
+
+            <div class="product-name">
+                @product.Name
+            </div>
+
+            <div class="product-description">
+                @product.Description
+            </div>
+
+            <div class="product-price">
+                $@product.Price
+            </div>
+
+            <div class="product-stock">
+                STOCK: @product.Quantity
+            </div>
+
+            <div class="product-actions">
+
+                <button class="btn btn-outline-primary"
+                        onclick="showDetails(@product.Id)">
+                    Details
+                </button>
+
+                <button class="btn btn-outline-secondary"
+                        onclick="editProduct(@product.Id)">
+                    Edit
+                </button>
+
+                <button class="btn btn-delete"
+                        onclick="deleteProduct(@product.Id)">
+                    Delete
+                </button>
+
+                 
+
+            </div>
+
+        </div>
+    }
+
+</div>
+
+@if (!Model.Any())
+{
+    <div class="empty-msg">
+        NO PRODUCTS FOUND.
+    </div>
+}

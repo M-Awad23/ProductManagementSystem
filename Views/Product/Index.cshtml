@@ -1,0 +1,74 @@
+﻿@model IEnumerable<ProductManagementSystem.Models.Product>
+
+<div class="page-header">
+
+    <div>
+        <h1>Products</h1>
+        <p>PRODUCT MANAGEMENT SYSTEM</p>
+    </div>
+
+    <button id="addProductBtn" class="btn btn-primary">
+        + ADD PRODUCT
+    </button>
+
+</div>
+
+<form id="productSearchForm" class="search-bar">
+    <div class="row g-2">
+
+        <div class="col-md-7">
+            <input type="text"
+                   name="search"
+                   value="@Context.Request.Query["search"]"
+                   class="form-control"
+                   placeholder="Search products..." />
+        </div>
+
+        <div class="col-md-3">
+            <select name="sortOrder" class="form-select">
+
+                <option value="">Newest</option>
+
+                <option value="name_asc"
+                        selected="@(Context.Request.Query["sortOrder"] == "name_asc")">
+                    Name A-Z
+                </option>
+
+                <option value="name_desc"
+                        selected="@(Context.Request.Query["sortOrder"] == "name_desc")">
+                    Name Z-A
+                </option>
+
+                <option value="price_asc"
+                        selected="@(Context.Request.Query["sortOrder"] == "price_asc")">
+                    Price Low-High
+                </option>
+
+                <option value="price_desc"
+                        selected="@(Context.Request.Query["sortOrder"] == "price_desc")">
+                    Price High-Low
+                </option>
+
+            </select>
+        </div>
+
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-primary w-100">
+                Search
+            </button>
+        </div>
+
+    </div>
+</form>
+
+@Html.AntiForgeryToken()
+
+<div id="productList">
+    @await Html.PartialAsync("_ProductList", Model)
+</div>
+
+<div id="modal"></div>
+
+@section Scripts {
+    <script src="~/js/products.js"></script>
+}
