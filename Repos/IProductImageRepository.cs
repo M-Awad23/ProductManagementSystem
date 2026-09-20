@@ -1,13 +1,13 @@
 ﻿using ProductManagementSystem.Models;
- 
-namespace ProductManagementSystem.Repos
+
+namespace ProductManagementSystem.Services
 {
-    public interface IProductImageRepository
+    public interface IProductImageService
     {
         IEnumerable<ProductImage> GetAllProductImages();
         ProductImage? GetProductImageById(int id);
         void AddProductImage(ProductImage productImage);
         void UpdateProductImage(ProductImage productImage);
-        void DeleteProductImage(int id);    
+        void DeleteProductImage(int id);
     }
 }
