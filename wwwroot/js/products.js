@@ -27,12 +27,21 @@
 
     const resetButton = document.getElementById("resetProductFilters");
 
-    if (resetButton) {
-        resetButton.addEventListener("click", function () {
-            searchForm.reset();
-            loadProductPage(1);
-        });
-    }
+if (resetButton) {
+    resetButton.addEventListener("click", function () {
+        searchForm.querySelector('input[name="search"]').value = "";
+        searchForm.querySelector('select[name="sortOrder"]').value = "";
+        searchForm.querySelector('select[name="categoryId"]').value = "";
+        searchForm.querySelector('select[name="brandId"]').value = "";
+        searchForm.querySelector('select[name="supplierId"]').value = "";
+        searchForm.querySelector('input[name="minPrice"]').value = "";
+        searchForm.querySelector('input[name="maxPrice"]').value = "";
+        searchForm.querySelector('input[name="minQuantity"]').value = "";
+        searchForm.querySelector('input[name="maxQuantity"]').value = "";
+
+        loadProductPage(1);
+    });
+}
 
 });
 
