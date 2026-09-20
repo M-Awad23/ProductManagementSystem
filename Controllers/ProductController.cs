@@ -37,12 +37,54 @@ namespace ProductManagementSystem.Controllers;
         ViewBag.Suppliers = _supplierService.GetAllSuppliers();
         ViewBag.Tags = _tagService.GetAllTags();
     }
-    public async Task<IActionResult> Index(string search, string sortOrder)
+    public async Task<IActionResult> Index(
+     string? search,
+     string? sortOrder,
+     int? categoryId,
+     int? brandId,
+     int? supplierId,
+     decimal? minPrice,
+     decimal? maxPrice,
+     int? minQuantity,
+     int? maxQuantity,
+     int page = 1)
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-        var products = await _productService
-            .GetProductsAsync(userId, search, sortOrder);
+        const int pageSize = 8;
+
+        var products = await _productService.GetProductsAsync(
+            userId,
+            search,
+            sortOrder,
+            categoryId,
+            brandId,
+            supplierId,
+            minPrice,
+            maxPrice,
+            minQuantity,
+            maxQuantity,
+            page,
+            pageSize);
+
+        var totalProducts = await _productService.GetProductCountAsync(
+            userId,
+            search,
+            categoryId,
+            brandId,
+            supplierId,
+            minPrice,
+            maxPrice,
+            minQuantity,
+            maxQuantity);
+
+        ViewBag.CurrentPage = page;
+        ViewBag.TotalPages = (int)Math.Ceiling(
+            totalProducts / (double)pageSize);
+
+        ViewBag.Categories = _categoryService.GetAllCategories();
+        ViewBag.Brands = _brandService.GetAllBrands();
+        ViewBag.Suppliers = _supplierService.GetAllSuppliers();
 
         if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
         {
