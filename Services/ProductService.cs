@@ -13,12 +13,56 @@ namespace ProductManagementSystem.Services
         }
 
         public async Task<List<Product>> GetProductsAsync(
-            string userId,
-            string? search,
-            string? sortOrder)
+    string userId,
+    string? search,
+    string? sortOrder,
+    int? categoryId,
+    int? brandId,
+    int? supplierId,
+    decimal? minPrice,
+    decimal? maxPrice,
+    int? minQuantity,
+    int? maxQuantity,
+    int page,
+    int pageSize)
         {
-            return await _productRepository
-                .GetProductsAsync(userId, search, sortOrder);
+            return await _productRepository.GetProductsAsync(
+                userId,
+                search,
+                sortOrder,
+                categoryId,
+                brandId,
+                supplierId,
+                minPrice,
+                maxPrice,
+                minQuantity,
+                maxQuantity,
+                page,
+                pageSize);
+
+        }
+
+        public async Task<int> GetProductCountAsync(
+    string userId,
+    string? search,
+    int? categoryId,
+    int? brandId,
+    int? supplierId,
+    decimal? minPrice,
+    decimal? maxPrice,
+    int? minQuantity,
+    int? maxQuantity)
+        {
+            return await _productRepository.GetProductCountAsync(
+                userId,
+                search,
+                categoryId,
+                brandId,
+                supplierId,
+                minPrice,
+                maxPrice,
+                minQuantity,
+                maxQuantity);
         }
 
         public async Task<Product?> GetByIdAsync(int id, string userId)
