@@ -1,4 +1,14 @@
 ﻿document.addEventListener("DOMContentLoaded", function () {
+    const resetButton = document.getElementById("resetProductFilters");
+
+if (resetButton) {
+    resetButton.addEventListener("click", function () {
+        searchForm.reset();
+
+        loadProductPage(1);
+    });
+}
+
 
     const searchForm = document.getElementById("productSearchForm");
 
@@ -10,6 +20,8 @@
             const params = new URLSearchParams(
                 new FormData(searchForm)
             );
+
+            params.set("page", 1);
 
             fetch("/Product/Index?" + params.toString(), {
                 headers: {
@@ -144,5 +156,34 @@ function deleteProduct(id) {
         .catch(error => {
             console.error(error);
             alert("Delete failed. Check the browser console.");
+        });
+}
+
+        function loadProductPage(page) {
+    const searchForm = document.getElementById("productSearchForm");
+
+    const params = new URLSearchParams(
+        new FormData(searchForm)
+    );
+
+    params.set("page", page);
+
+    fetch("/Product/Index?" + params.toString(), {
+        headers: {
+            "X-Requested-With": "XMLHttpRequest"
+        }
+    })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("Failed to load page: " + response.status);
+            }
+
+            return response.text();
+        })
+        .then(html => {
+            document.getElementById("productList").innerHTML = html;
+        })
+        .catch(error => {
+            console.error(error);
         });
 }
