@@ -12,11 +12,10 @@
     </button>
 
 </div>
-
 <form id="productSearchForm" class="search-bar">
     <div class="row g-2">
 
-        <div class="col-md-7">
+        <div class="col-md-6">
             <input type="text"
                    name="search"
                    value="@Context.Request.Query["search"]"
@@ -26,7 +25,6 @@
 
         <div class="col-md-3">
             <select name="sortOrder" class="form-select">
-
                 <option value="">Newest</option>
 
                 <option value="name_asc"
@@ -49,12 +47,114 @@
                     Price High-Low
                 </option>
 
+                <option value="quantity_asc"
+                        selected="@(Context.Request.Query["sortOrder"] == "quantity_asc")">
+                    Quantity Low-High
+                </option>
+
+                <option value="quantity_desc"
+                        selected="@(Context.Request.Query["sortOrder"] == "quantity_desc")">
+                    Quantity High-Low
+                </option>
+
+                <option value="oldest"
+                        selected="@(Context.Request.Query["sortOrder"] == "oldest")">
+                    Oldest
+                </option>
             </select>
+        </div>
+
+        <div class="col-md-3">
+            <select name="categoryId" class="form-select">
+                <option value="">All Categories</option>
+
+                @foreach (var category in ViewBag.Categories)
+                {
+                    <option value="@category.Id"
+                            selected="@(Context.Request.Query["categoryId"] == category.Id.ToString())">
+                        @category.Name
+                    </option>
+                }
+            </select>
+        </div>
+
+        <div class="col-md-3">
+            <select name="brandId" class="form-select">
+                <option value="">All Brands</option>
+
+                @foreach (var brand in ViewBag.Brands)
+                {
+                    <option value="@brand.Id"
+                            selected="@(Context.Request.Query["brandId"] == brand.Id.ToString())">
+                        @brand.Name
+                    </option>
+                }
+            </select>
+        </div>
+
+        <div class="col-md-3">
+            <select name="supplierId" class="form-select">
+                <option value="">All Suppliers</option>
+
+                @foreach (var supplier in ViewBag.Suppliers)
+                {
+                    <option value="@supplier.Id"
+                            selected="@(Context.Request.Query["supplierId"] == supplier.Id.ToString())">
+                        @supplier.Name
+                    </option>
+                }
+            </select>
+        </div>
+
+        <div class="col-md-3">
+            <input type="number"
+                   name="minPrice"
+                   value="@Context.Request.Query["minPrice"]"
+                   class="form-control"
+                   placeholder="Min Price"
+                   step="0.01"
+                   min="0" />
+        </div>
+
+        <div class="col-md-3">
+            <input type="number"
+                   name="maxPrice"
+                   value="@Context.Request.Query["maxPrice"]"
+                   class="form-control"
+                   placeholder="Max Price"
+                   step="0.01"
+                   min="0" />
+        </div>
+
+        <div class="col-md-3">
+            <input type="number"
+                   name="minQuantity"
+                   value="@Context.Request.Query["minQuantity"]"
+                   class="form-control"
+                   placeholder="Min Quantity"
+                   min="0" />
+        </div>
+
+        <div class="col-md-3">
+            <input type="number"
+                   name="maxQuantity"
+                   value="@Context.Request.Query["maxQuantity"]"
+                   class="form-control"
+                   placeholder="Max Quantity"
+                   min="0" />
         </div>
 
         <div class="col-md-2">
             <button type="submit" class="btn btn-primary w-100">
                 Search
+            </button>
+        </div>
+
+        <div class="col-md-2">
+            <button type="button"
+                    id="resetProductFilters"
+                    class="btn btn-secondary w-100">
+                Reset
             </button>
         </div>
 
