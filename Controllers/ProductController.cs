@@ -13,11 +13,30 @@ namespace ProductManagementSystem.Controllers;
 
     {
     private readonly IProductService _productService;
-    public ProductController(IProductService productService)
+    private readonly ICategoryService _categoryService;
+    private readonly IBrandService _brandService;
+    private readonly ISupplierService _supplierService;
+    private readonly ITagService _tagService;
+    public ProductController(
+    IProductService productService,
+    ICategoryService categoryService,
+    IBrandService brandService,
+    ISupplierService supplierService,
+    ITagService tagService)
     {
         _productService = productService;
+        _categoryService = categoryService;
+        _brandService = brandService;
+        _supplierService = supplierService;
+        _tagService = tagService;
     }
-
+    private void LoadProductFormData()
+    {
+        ViewBag.Categories = _categoryService.GetAllCategories();
+        ViewBag.Brands = _brandService.GetAllBrands();
+        ViewBag.Suppliers = _supplierService.GetAllSuppliers();
+        ViewBag.Tags = _tagService.GetAllTags();
+    }
     public async Task<IActionResult> Index(string search, string sortOrder)
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -34,9 +53,10 @@ namespace ProductManagementSystem.Controllers;
     }
 
     public IActionResult Create()
-        {
-            return PartialView("_ProductForm", new Product());
-        }
+    {
+        LoadProductFormData();
+        return PartialView("_ProductForm", new Product());
+    }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
@@ -74,18 +94,21 @@ namespace ProductManagementSystem.Controllers;
             return PartialView("_Details", product);
         }
 
-        public async Task<IActionResult> Edit(int id)
-        {
+    public async Task<IActionResult> Edit(int id)
+    {
         var product = await _productService.GetByIdAsync(id);
-        if (product == null)
-            {
-                return NotFound();
-            }
 
-            return PartialView("_ProductForm", product);
+        if (product == null)
+        {
+            return NotFound();
         }
 
-        [HttpPost]
+        LoadProductFormData();
+
+        return PartialView("_ProductForm", product);
+    }
+
+    [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(
     int id,
