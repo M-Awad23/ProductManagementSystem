@@ -11,7 +11,7 @@ namespace ProductManagementSystem.Repos
             _context = context;
         }
 
-        public IEnumerable<Tag> GetAllTag()
+        public IEnumerable<Tag> GetAllTags()
         {
             return _context.Tags.ToList();
         }
@@ -33,10 +33,15 @@ namespace ProductManagementSystem.Repos
             _context.SaveChanges();
         }
 
-        public void DeleteTag(Tag tag)
+        public void DeleteTag(int id)
         {
-            _context.Tags.Remove(tag);
-            _context.SaveChanges();
+            var tag = _context.Tags.Find(id);
+
+            if (tag != null)
+            {
+                _context.Tags.Remove(tag);
+                _context.SaveChanges();
+            }
         }
     }
 }
