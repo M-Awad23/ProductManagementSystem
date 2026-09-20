@@ -1,17 +1,17 @@
-﻿using Microsoft.Identity.Client;
-using ProductManagementSystem.Models;
+﻿using ProductManagementSystem.Models;
 
 namespace ProductManagementSystem.Repos
 {
     public interface ISupplierRepository
     {
         IEnumerable<Supplier> GetAllSuppliers();
-        SupplierRepository GetSupplierById(int id);
+
+        Supplier? GetSupplierById(int id);
 
         void AddSupplier(Supplier supplier);
 
         void UpdateSupplier(Supplier supplier);
-        void DeleteSupplier(int id);
 
+        void DeleteSupplier(int id);
     }
 }
