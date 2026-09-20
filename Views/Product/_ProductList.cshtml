@@ -54,3 +54,32 @@
         NO PRODUCTS FOUND.
     </div>
 }
+
+@if (ViewBag.TotalPages > 1)
+{
+    <div class="pagination-container">
+
+        @if (ViewBag.CurrentPage > 1)
+        {
+            <button type="button"
+                    class="btn btn-outline-primary"
+                    onclick="loadProductPage(@(ViewBag.CurrentPage - 1))">
+                Previous
+            </button>
+        }
+
+        <span class="pagination-info">
+            Page @ViewBag.CurrentPage of @ViewBag.TotalPages
+        </span>
+
+        @if (ViewBag.CurrentPage < ViewBag.TotalPages)
+        {
+            <button type="button"
+                    class="btn btn-outline-primary"
+                    onclick="loadProductPage(@(ViewBag.CurrentPage + 1))">
+                Next
+            </button>
+        }
+
+    </div>
+}
