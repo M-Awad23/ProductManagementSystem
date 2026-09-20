@@ -14,16 +14,60 @@ namespace ProductManagementSystem.Repositories
         public async Task<List<Product>> GetProductsAsync(
     string userId,
     string? search,
-    string? sortOrder)
+    string? sortOrder,
+    int? categoryId,
+    int? brandId,
+    int? supplierId,
+    decimal? minPrice,
+    decimal? maxPrice,
+    int? minQuantity,
+    int? maxQuantity,
+    int page,
+    int pageSize)
         {
             var products = _context.Products
                 .Where(p => p.UserId == userId);
 
-            if (!string.IsNullOrEmpty(search))
+            if (!string.IsNullOrWhiteSpace(search))
             {
                 products = products.Where(p =>
                     p.Name.Contains(search) ||
                     p.Description.Contains(search));
+            }
+
+            if (categoryId.HasValue)
+            {
+                products = products.Where(p => p.CategoryId == categoryId.Value);
+            }
+
+            if (brandId.HasValue)
+            {
+                products = products.Where(p => p.BrandId == brandId.Value);
+            }
+
+            if (supplierId.HasValue)
+            {
+                products = products.Where(p => p.SupplierId == supplierId.Value);
+            }
+
+            if (minPrice.HasValue)
+            {
+                products = products.Where(p => p.Price >= minPrice.Value);
+            }
+
+            if (maxPrice.HasValue)
+            {
+                products = products.Where(p => p.Price <= maxPrice.Value);
+            }
+
+            if (minQuantity.HasValue)
+            {
+                products = products.Where(p => p.Quantity >= minQuantity.Value);
+            }
+
+            if (maxQuantity.HasValue)
+            {
+                products = products.Where(p => p.Quantity <= maxQuantity.Value);
             }
 
             switch (sortOrder)
@@ -44,12 +88,91 @@ namespace ProductManagementSystem.Repositories
                     products = products.OrderByDescending(p => p.Price);
                     break;
 
+                case "quantity_asc":
+                    products = products.OrderBy(p => p.Quantity);
+                    break;
+
+                case "quantity_desc":
+                    products = products.OrderByDescending(p => p.Quantity);
+                    break;
+
+                case "oldest":
+                    products = products.OrderBy(p => p.CreatedAt);
+                    break;
+
                 default:
                     products = products.OrderByDescending(p => p.CreatedAt);
                     break;
             }
 
-            return await products.ToListAsync();
+            if (page < 1)
+                page = 1;
+
+            if (pageSize < 1)
+                pageSize = 8;
+
+            return await products
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+        }
+        public async Task<int> GetProductCountAsync(
+    string userId,
+    string? search,
+    int? categoryId,
+    int? brandId,
+    int? supplierId,
+    decimal? minPrice,
+    decimal? maxPrice,
+    int? minQuantity,
+    int? maxQuantity)
+        {
+            var products = _context.Products
+                .Where(p => p.UserId == userId);
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                products = products.Where(p =>
+                    p.Name.Contains(search) ||
+                    p.Description.Contains(search));
+            }
+
+            if (categoryId.HasValue)
+            {
+                products = products.Where(p => p.CategoryId == categoryId.Value);
+            }
+
+            if (brandId.HasValue)
+            {
+                products = products.Where(p => p.BrandId == brandId.Value);
+            }
+
+            if (supplierId.HasValue)
+            {
+                products = products.Where(p => p.SupplierId == supplierId.Value);
+            }
+
+            if (minPrice.HasValue)
+            {
+                products = products.Where(p => p.Price >= minPrice.Value);
+            }
+
+            if (maxPrice.HasValue)
+            {
+                products = products.Where(p => p.Price <= maxPrice.Value);
+            }
+
+            if (minQuantity.HasValue)
+            {
+                products = products.Where(p => p.Quantity >= minQuantity.Value);
+            }
+
+            if (maxQuantity.HasValue)
+            {
+                products = products.Where(p => p.Quantity <= maxQuantity.Value);
+            }
+
+            return await products.CountAsync();
         }
 
         public async Task<List<Product>> GetUserProductsAsync(string userId)
