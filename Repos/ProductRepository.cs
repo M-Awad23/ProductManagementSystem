@@ -59,10 +59,12 @@ namespace ProductManagementSystem.Repositories
                 .ToListAsync();
         }
 
-        public async Task<Product?> GetByIdAsync(int id)
+        public async Task<Product?> GetByIdAsync(int id, string userId)
         {
             return await _context.Products
-                .FindAsync(id);
+                .FirstOrDefaultAsync(p =>
+                    p.Id == id &&
+                    p.UserId == userId);
         }
 
         public async Task AddAsync(Product product)
@@ -79,7 +81,10 @@ namespace ProductManagementSystem.Repositories
 
         public async Task DeleteAsync(int id, string userId)
         {
-            var product = await _context.Products.FindAsync(id);
+            var product = await _context.Products
+                .FirstOrDefaultAsync(p =>
+                    p.Id == id &&
+                    p.UserId == userId);
 
             if (product != null)
             {

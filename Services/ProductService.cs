@@ -21,10 +21,11 @@ namespace ProductManagementSystem.Services
                 .GetProductsAsync(userId, search, sortOrder);
         }
 
-        public async Task<Product?> GetByIdAsync(int id)
+        public async Task<Product?> GetByIdAsync(int id, string userId)
         {
-            return await _productRepository.GetByIdAsync(id);
+            return await _productRepository.GetByIdAsync(id, userId);
         }
+        
 
         public async Task AddAsync(Product product)
         {

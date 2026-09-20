@@ -9,7 +9,7 @@ namespace ProductManagementSystem.Repositories
             string? search,
             string? sortOrder);
 
-        Task<Product?> GetByIdAsync(int id);
+        Task<Product?> GetByIdAsync(int id, string userId);
         Task AddAsync(Product product);
         Task UpdateAsync(Product product);
         Task DeleteAsync(int id, string userId);

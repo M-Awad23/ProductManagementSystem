@@ -9,8 +9,7 @@ namespace ProductManagementSystem.Services
             string? search,
             string? sortOrder);
 
-        Task<Product?> GetByIdAsync(int id);
-
+        Task<Product?> GetByIdAsync(int id, string userId);
         Task AddAsync(Product product);
 
         Task UpdateAsync(Product product);
