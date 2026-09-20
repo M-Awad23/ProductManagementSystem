@@ -1,14 +1,4 @@
 ﻿document.addEventListener("DOMContentLoaded", function () {
-    const resetButton = document.getElementById("resetProductFilters");
-
-if (resetButton) {
-    resetButton.addEventListener("click", function () {
-        searchForm.reset();
-
-        loadProductPage(1);
-    });
-}
-
 
     const searchForm = document.getElementById("productSearchForm");
 
@@ -32,6 +22,15 @@ if (resetButton) {
                 .then(html => {
                     document.getElementById("productList").innerHTML = html;
                 });
+        });
+    }
+
+    const resetButton = document.getElementById("resetProductFilters");
+
+    if (resetButton) {
+        resetButton.addEventListener("click", function () {
+            searchForm.reset();
+            loadProductPage(1);
         });
     }
 

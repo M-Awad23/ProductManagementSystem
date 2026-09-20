@@ -4,25 +4,23 @@ using ProductManagementSystem.Models;
 using ProductManagementSystem.Services;
 using System.Security.Claims;
 
-
-
-
 namespace ProductManagementSystem.Controllers;
-[Authorize]
-    public class ProductController : Controller
 
-    {
+[Authorize]
+public class ProductController : Controller
+{
     private readonly IProductService _productService;
     private readonly ICategoryService _categoryService;
     private readonly IBrandService _brandService;
     private readonly ISupplierService _supplierService;
     private readonly ITagService _tagService;
+
     public ProductController(
-    IProductService productService,
-    ICategoryService categoryService,
-    IBrandService brandService,
-    ISupplierService supplierService,
-    ITagService tagService)
+        IProductService productService,
+        ICategoryService categoryService,
+        IBrandService brandService,
+        ISupplierService supplierService,
+        ITagService tagService)
     {
         _productService = productService;
         _categoryService = categoryService;
@@ -30,6 +28,7 @@ namespace ProductManagementSystem.Controllers;
         _supplierService = supplierService;
         _tagService = tagService;
     }
+
     private void LoadProductFormData()
     {
         ViewBag.Categories = _categoryService.GetAllCategories();
@@ -37,17 +36,18 @@ namespace ProductManagementSystem.Controllers;
         ViewBag.Suppliers = _supplierService.GetAllSuppliers();
         ViewBag.Tags = _tagService.GetAllTags();
     }
+
     public async Task<IActionResult> Index(
-     string? search,
-     string? sortOrder,
-     int? categoryId,
-     int? brandId,
-     int? supplierId,
-     decimal? minPrice,
-     decimal? maxPrice,
-     int? minQuantity,
-     int? maxQuantity,
-     int page = 1)
+        string? search,
+        string? sortOrder,
+        int? categoryId,
+        int? brandId,
+        int? supplierId,
+        decimal? minPrice,
+        decimal? maxPrice,
+        int? minQuantity,
+        int? maxQuantity,
+        int page = 1)
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
@@ -97,13 +97,15 @@ namespace ProductManagementSystem.Controllers;
     public IActionResult Create()
     {
         LoadProductFormData();
+
         return PartialView("_ProductForm", new Product());
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(
-    [Bind("Name,Description,Price,Quantity,CategoryId,BrandId,SupplierId")] Product product)
+        [Bind("Name,Description,Price,Quantity,CategoryId,BrandId,SupplierId")]
+        Product product)
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
@@ -120,8 +122,20 @@ namespace ProductManagementSystem.Controllers;
 
         await _productService.AddAsync(product);
 
-        var products = await _productService
-    .GetProductsAsync(userId, null, null);
+        var products = await _productService.GetProductsAsync(
+            userId,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            1,
+            8);
+
         return PartialView("_ProductList", products);
     }
 
@@ -129,8 +143,9 @@ namespace ProductManagementSystem.Controllers;
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-        var product = await _productService
-            .GetByIdAsync(id, userId);
+        var product = await _productService.GetByIdAsync(
+            id,
+            userId);
 
         if (product == null)
         {
@@ -144,8 +159,9 @@ namespace ProductManagementSystem.Controllers;
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-        var product = await _productService
-            .GetByIdAsync(id, userId);
+        var product = await _productService.GetByIdAsync(
+            id,
+            userId);
 
         if (product == null)
         {
@@ -160,14 +176,15 @@ namespace ProductManagementSystem.Controllers;
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(
-    int id,
-    [Bind("Id,Name,Description,Price,Quantity,CategoryId,BrandId,SupplierId")]
-    Product product)
+        int id,
+        [Bind("Id,Name,Description,Price,Quantity,CategoryId,BrandId,SupplierId")]
+        Product product)
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-        var existingProduct = await _productService
-            .GetByIdAsync(id, userId);
+        var existingProduct = await _productService.GetByIdAsync(
+            id,
+            userId);
 
         if (existingProduct == null)
         {
@@ -191,25 +208,47 @@ namespace ProductManagementSystem.Controllers;
 
         await _productService.UpdateAsync(product);
 
-        var products = await _productService
-            .GetProductsAsync(userId, null, null);
+        var products = await _productService.GetProductsAsync(
+            userId,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            1,
+            8);
 
         return PartialView("_ProductList", products);
     }
+
     [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Delete(int id)
-        {
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Delete(int id)
+    {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-        await _productService.DeleteAsync(id, userId);
+        await _productService.DeleteAsync(
+            id,
+            userId);
 
-        var products = await _productService
-            .GetProductsAsync(userId, null, null);
+        var products = await _productService.GetProductsAsync(
+            userId,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            1,
+            8);
 
         return PartialView("_ProductList", products);
     }
-
-        
-    }
-
+}
