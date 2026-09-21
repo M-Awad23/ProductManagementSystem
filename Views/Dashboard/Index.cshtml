@@ -1,0 +1,110 @@
+﻿@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<div class="page-header">
+    <div>
+        <h1>Dashboard</h1>
+        <p>PRODUCT MANAGEMENT OVERVIEW</p>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+
+    <div class="col-md-4">
+        <div class="retro-panel">
+            <div class="section-label">Total Products</div>
+            <div class="display-5">@ViewBag.TotalProducts</div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="retro-panel">
+            <div class="section-label">Product Images</div>
+            <div class="display-5">@ViewBag.ProductImageCount</div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="retro-panel">
+            <div class="section-label">Categories</div>
+            <div class="display-5">@ViewBag.CategoryCount</div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="retro-panel">
+            <div class="section-label">Brands</div>
+            <div class="display-5">@ViewBag.BrandCount</div>
+        </div>
+    </div>
+
+</div>
+
+<div class="row g-4">
+
+    <div class="col-md-4">
+        <div class="retro-panel">
+            <div class="retro-panel-header">
+                <h2>Products By Category</h2>
+            </div>
+
+            @foreach (var item in ViewBag.ProductsByCategory)
+            {
+                <div class="detail-row">
+                    <div class="detail-label">@item.Name</div>
+                    <div class="detail-value">@item.Count</div>
+                </div>
+            }
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="retro-panel">
+            <div class="retro-panel-header">
+                <h2>Products By Brand</h2>
+            </div>
+
+            @foreach (var item in ViewBag.ProductsByBrand)
+            {
+                <div class="detail-row">
+                    <div class="detail-label">@item.Name</div>
+                    <div class="detail-value">@item.Count</div>
+                </div>
+            }
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="retro-panel">
+            <div class="retro-panel-header">
+                <h2>Products By Supplier</h2>
+            </div>
+
+            @foreach (var item in ViewBag.ProductsBySupplier)
+            {
+                <div class="detail-row">
+                    <div class="detail-label">@item.Name</div>
+                    <div class="detail-value">@item.Count</div>
+                </div>
+            }
+        </div>
+    </div>
+
+</div>
+
+<div class="retro-panel mt-4">
+    <div class="retro-panel-header">
+        <h2>Recently Added Products</h2>
+    </div>
+
+    @foreach (var product in ViewBag.RecentProducts)
+    {
+        <div class="detail-row">
+            <div class="detail-label">@product.Name</div>
+            <div class="detail-value">
+                @product.CreatedAt.ToString("yyyy-MM-dd HH:mm")
+            </div>
+        </div>
+    }
+</div>
