@@ -6,9 +6,17 @@
         <h1>Products</h1>
     </div>
 
-    <button id="addProductBtn" class="btn btn-primary">
-        + ADD PRODUCT
-    </button>
+    <div>
+        <a asp-controller="Product"
+           asp-action="Deleted"
+           class="btn btn-secondary">
+            DELETED PRODUCTS
+        </a>
+
+        <button id="addProductBtn" class="btn btn-primary">
+            + ADD PRODUCT
+        </button>
+    </div>
 
 </div>
 <form id="productSearchForm" class="search-bar">
