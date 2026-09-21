@@ -81,6 +81,21 @@ namespace ProductManagementSystem.Services
             await _productRepository.UpdateAsync(product);
         }
 
+        public async Task<List<Product>> GetDeletedProductsAsync(string userId)
+        {
+            return await _productRepository.GetDeletedProductsAsync(userId);
+        }
+
+        public async Task RestoreAsync(int id, string userId)
+        {
+            await _productRepository.RestoreAsync(id, userId);
+        }
+
+        public async Task PermanentDeleteAsync(int id, string userId)
+        {
+            await _productRepository.PermanentDeleteAsync(id, userId);
+        }
+
         public async Task DeleteAsync(int id, string userId)
         {
             await _productRepository.DeleteAsync(id, userId);
