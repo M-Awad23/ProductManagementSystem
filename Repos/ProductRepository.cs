@@ -221,6 +221,8 @@ namespace ProductManagementSystem.Repositories
             if (product != null)
             {
                 product.IsDeleted = true;
+                product.DeletedAt = DateTime.Now;
+
                 await _context.SaveChangesAsync();
             }
         }
