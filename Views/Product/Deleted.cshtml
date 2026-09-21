@@ -1,0 +1,78 @@
+@model IEnumerable<ProductManagementSystem.Models.Product>
+
+<div class="page-header">
+    <div>
+        <h1>Deleted Products</h1>
+        <p>Products currently in the recycle bin.</p>
+    </div>
+
+    <a asp-controller="Product"
+       asp-action="Index"
+       class="btn btn-secondary">
+        BACK TO PRODUCTS
+    </a>
+</div>
+
+@if (!Model.Any())
+{
+    <div class="empty-msg">
+        NO DELETED PRODUCTS.
+    </div>
+}
+else
+{
+    <div class="product-grid">
+        @foreach (var product in Model)
+        {
+            <div class="product-card">
+                @if (product.ProductImages.Any())
+                {
+                    <img src="@product.ProductImages.First().ImageUrl"
+                         class="product-image"
+                         alt="@product.Name" />
+                }
+
+                <div class="product-name">
+                    @product.Name
+                </div>
+
+                <div class="product-price">
+                    $@product.Price
+                </div>
+
+                <div class="product-stock">
+                    DELETED:
+                    @product.DeletedAt
+                </div>
+
+                <div class="product-actions">
+                    <form asp-action="Restore" method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden"
+                               name="id"
+                               value="@product.Id" />
+
+                        <button type="submit"
+                                class="btn btn-primary">
+                            RESTORE
+                        </button>
+                    </form>
+
+                    <form asp-action="PermanentDelete"
+                          method="post"
+                          onsubmit="return confirm('Permanently delete this product?');">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden"
+                               name="id"
+                               value="@product.Id" />
+
+                        <button type="submit"
+                                class="btn btn-danger">
+                            PERMANENT DELETE
+                        </button>
+                    </form>
+                </div>
+            </div>
+        }
+    </div>
+}
