@@ -126,6 +126,69 @@ namespace ProductManagementSystem.Controllers
             return View(user);
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UploadProfilePhoto(IFormFile? photo)
+        {
+            var user = await _userManager.GetUserAsync(User);
+
+            if (user == null)
+            {
+                return Unauthorized();
+            }
+
+            if (photo == null || photo.Length == 0)
+            {
+                return BadRequest(new
+                {
+                    success = false,
+                    message = "Please select an image."
+                });
+            }
+
+            var uploadPath = Path.Combine(
+                Directory.GetCurrentDirectory(),
+                "wwwroot",
+                "uploads",
+                "profiles");
+
+            Directory.CreateDirectory(uploadPath);
+
+            if (!string.IsNullOrEmpty(user.ProfilePhotoUrl))
+            {
+                var oldFilePath = Path.Combine(
+                    Directory.GetCurrentDirectory(),
+                    "wwwroot",
+                    user.ProfilePhotoUrl.TrimStart('/').Replace(
+                        "/",
+                        Path.DirectorySeparatorChar.ToString()));
+
+                if (System.IO.File.Exists(oldFilePath))
+                {
+                    System.IO.File.Delete(oldFilePath);
+                }
+            }
+
+            var extension = Path.GetExtension(photo.FileName);
+            var fileName = $"{Guid.NewGuid()}{extension}";
+            var filePath = Path.Combine(uploadPath, fileName);
+
+            using var stream = new FileStream(
+                filePath,
+                FileMode.Create);
+
+            await photo.CopyToAsync(stream);
+
+            user.ProfilePhotoUrl = $"/uploads/profiles/{fileName}";
+
+            await _userManager.UpdateAsync(user);
+
+            return Json(new
+            {
+                success = true,
+                photoUrl = user.ProfilePhotoUrl
+            });
+        }
 
 
         [HttpGet]

@@ -1,5 +1,48 @@
 ﻿document.addEventListener("DOMContentLoaded", function () {
+    const profilePhotoForm =
+    document.getElementById("profilePhotoForm");
 
+if (profilePhotoForm) {
+    profilePhotoForm.addEventListener("submit", async function (event) {
+        event.preventDefault();
+
+        const formData = new FormData(profilePhotoForm);
+
+        const response = await fetch(
+            "/Account/UploadProfilePhoto",
+            {
+                method: "POST",
+                body: formData
+            }
+        );
+
+        const result = await response.json();
+
+        document.getElementById(
+            "profilePhotoMessage"
+        ).textContent = result.message || "";
+
+        if (result.success) {
+            let image = document.querySelector(
+                "[data-profile-photo]"
+            );
+
+            if (!image) {
+                image = document.createElement("img");
+                image.setAttribute("data-profile-photo", "");
+                image.alt = "Profile Photo";
+                image.style.width = "150px";
+                image.style.height = "150px";
+                image.style.objectFit = "cover";
+
+                profilePhotoForm.before(image);
+            }
+
+            image.src = result.photoUrl;
+            profilePhotoForm.reset();
+        }
+    });
+}
     const changeEmailButton =
         document.getElementById("changeEmailButton");
 
