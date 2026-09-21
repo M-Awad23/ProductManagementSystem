@@ -456,4 +456,31 @@ public class ProductController : Controller
             success = true
         });
     }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public IActionResult SetPrimaryImage(int id)
+    {
+        var userId =
+            User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        var image =
+            _productImageService.GetProductImageById(
+                id,
+                userId);
+
+        if (image == null)
+        {
+            return NotFound();
+        }
+
+        _productImageService.SetPrimaryImage(
+            id,
+            userId);
+
+        return Json(new
+        {
+            success = true
+        });
+    }
 }
