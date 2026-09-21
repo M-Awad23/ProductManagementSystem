@@ -107,8 +107,9 @@ public class ProductController : Controller
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(
-        [Bind("Name,Description,Price,Quantity,CategoryId,BrandId,SupplierId")]
-        Product product)
+     [Bind("Name,Description,Price,Quantity,CategoryId,BrandId,SupplierId")]
+    Product product,
+     List<IFormFile>? images)
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
@@ -124,6 +125,43 @@ public class ProductController : Controller
         }
 
         await _productService.AddAsync(product);
+
+        if (images != null)
+        {
+            var uploadPath = Path.Combine(
+                Directory.GetCurrentDirectory(),
+                "wwwroot",
+                "uploads",
+                "products");
+
+            Directory.CreateDirectory(uploadPath);
+
+            foreach (var image in images)
+            {
+                if (image.Length == 0)
+                {
+                    continue;
+                }
+
+                var extension = Path.GetExtension(image.FileName);
+                var fileName = $"{Guid.NewGuid()}{extension}";
+                var filePath = Path.Combine(uploadPath, fileName);
+
+                using var stream = new FileStream(
+                    filePath,
+                    FileMode.Create);
+
+                await image.CopyToAsync(stream);
+
+                var productImage = new ProductImage
+                {
+                    ImageUrl = $"/uploads/products/{fileName}",
+                    ProductId = product.Id
+                };
+
+                _productImageService.AddProductImage(productImage);
+            }
+        }
 
         var products = await _productService.GetProductsAsync(
             userId,
@@ -179,9 +217,10 @@ public class ProductController : Controller
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(
-        int id,
-        [Bind("Id,Name,Description,Price,Quantity,CategoryId,BrandId,SupplierId")]
-        Product product)
+     int id,
+     [Bind("Id,Name,Description,Price,Quantity,CategoryId,BrandId,SupplierId")]
+    Product product,
+     List<IFormFile>? images)
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
@@ -195,6 +234,7 @@ public class ProductController : Controller
         }
 
         product.UserId = userId;
+        product.CreatedAt = existingProduct.CreatedAt;
 
         ModelState.Remove(nameof(Product.UserId));
         ModelState.Remove(nameof(Product.User));
@@ -210,6 +250,43 @@ public class ProductController : Controller
         }
 
         await _productService.UpdateAsync(product);
+
+        if (images != null)
+        {
+            var uploadPath = Path.Combine(
+                Directory.GetCurrentDirectory(),
+                "wwwroot",
+                "uploads",
+                "products");
+
+            Directory.CreateDirectory(uploadPath);
+
+            foreach (var image in images)
+            {
+                if (image.Length == 0)
+                {
+                    continue;
+                }
+
+                var extension = Path.GetExtension(image.FileName);
+                var fileName = $"{Guid.NewGuid()}{extension}";
+                var filePath = Path.Combine(uploadPath, fileName);
+
+                using var stream = new FileStream(
+                    filePath,
+                    FileMode.Create);
+
+                await image.CopyToAsync(stream);
+
+                var productImage = new ProductImage
+                {
+                    ImageUrl = $"/uploads/products/{fileName}",
+                    ProductId = product.Id
+                };
+
+                _productImageService.AddProductImage(productImage);
+            }
+        }
 
         var products = await _productService.GetProductsAsync(
             userId,
