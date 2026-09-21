@@ -9,6 +9,16 @@ namespace ProductManagementSystem.Controllers;
 [Authorize]
 public class ProductController : Controller
 {
+
+    private static readonly string[] AllowedImageExtensions =
+{
+    ".jpg",
+    ".jpeg",
+    ".png",
+    ".gif"
+};
+
+    private const long MaxProductImageSize = 5 * 1024 * 1024;
     private readonly IPdfService _pdfService;
     private readonly IProductImageService _productImageService;
     private readonly IProductService _productService;
@@ -146,23 +156,27 @@ public class ProductController : Controller
                     continue;
                 }
 
-                var extension = Path.GetExtension(image.FileName);
-                var fileName = $"{Guid.NewGuid()}{extension}";
-                var filePath = Path.Combine(uploadPath, fileName);
+                var extension =
+                    Path.GetExtension(image.FileName)
+                        .ToLowerInvariant();
 
-                using var stream = new FileStream(
-                    filePath,
-                    FileMode.Create);
-
-                await image.CopyToAsync(stream);
-
-                var productImage = new ProductImage
+                if (!AllowedImageExtensions.Contains(extension))
                 {
-                    ImageUrl = $"/uploads/products/{fileName}",
-                    ProductId = product.Id
-                };
+                    return BadRequest(new
+                    {
+                        success = false,
+                        message = "Only JPG, JPEG, PNG, and GIF images are allowed."
+                    });
+                }
 
-                _productImageService.AddProductImage(productImage);
+                if (image.Length > MaxProductImageSize)
+                {
+                    return BadRequest(new
+                    {
+                        success = false,
+                        message = "Product images must be 5 MB or smaller."
+                    });
+                }
             }
         }
 
@@ -278,23 +292,27 @@ public class ProductController : Controller
                     continue;
                 }
 
-                var extension = Path.GetExtension(image.FileName);
-                var fileName = $"{Guid.NewGuid()}{extension}";
-                var filePath = Path.Combine(uploadPath, fileName);
+                var extension =
+                    Path.GetExtension(image.FileName)
+                        .ToLowerInvariant();
 
-                using var stream = new FileStream(
-                    filePath,
-                    FileMode.Create);
-
-                await image.CopyToAsync(stream);
-
-                var productImage = new ProductImage
+                if (!AllowedImageExtensions.Contains(extension))
                 {
-                    ImageUrl = $"/uploads/products/{fileName}",
-                    ProductId = product.Id
-                };
+                    return BadRequest(new
+                    {
+                        success = false,
+                        message = "Only JPG, JPEG, PNG, and GIF images are allowed."
+                    });
+                }
 
-                _productImageService.AddProductImage(productImage);
+                if (image.Length > MaxProductImageSize)
+                {
+                    return BadRequest(new
+                    {
+                        success = false,
+                        message = "Product images must be 5 MB or smaller."
+                    });
+                }
             }
         }
 
