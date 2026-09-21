@@ -252,8 +252,15 @@ public class ProductController : Controller
             return BadRequest(ModelState);
         }
 
-        await _productService.UpdateAsync(product);
+        existingProduct.Name = product.Name;
+        existingProduct.Description = product.Description;
+        existingProduct.Price = product.Price;
+        existingProduct.Quantity = product.Quantity;
+        existingProduct.CategoryId = product.CategoryId;
+        existingProduct.BrandId = product.BrandId;
+        existingProduct.SupplierId = product.SupplierId;
 
+        await _productService.UpdateAsync(existingProduct);
         if (images != null)
         {
             var uploadPath = Path.Combine(
