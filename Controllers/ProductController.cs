@@ -456,7 +456,102 @@ public class ProductController : Controller
             success = true
         });
     }
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> ReplaceImage(
+    int id,
+    IFormFile? image)
+    {
+        var userId =
+            User.FindFirstValue(ClaimTypes.NameIdentifier);
 
+        var existingImage =
+            _productImageService.GetProductImageById(
+                id,
+                userId);
+
+        if (existingImage == null)
+        {
+            return NotFound();
+        }
+
+        if (image == null || image.Length == 0)
+        {
+            return BadRequest(new
+            {
+                success = false,
+                message = "Please select an image."
+            });
+        }
+
+        var extension =
+            Path.GetExtension(image.FileName)
+                .ToLowerInvariant();
+
+        if (!AllowedImageExtensions.Contains(extension))
+        {
+            return BadRequest(new
+            {
+                success = false,
+                message = "Only JPG, JPEG, PNG, and GIF images are allowed."
+            });
+        }
+
+        if (image.Length > MaxProductImageSize)
+        {
+            return BadRequest(new
+            {
+                success = false,
+                message = "Product images must be 5 MB or smaller."
+            });
+        }
+
+        var uploadPath = Path.Combine(
+            Directory.GetCurrentDirectory(),
+            "wwwroot",
+            "uploads",
+            "products");
+
+        Directory.CreateDirectory(uploadPath);
+
+        var newFileName =
+            $"{Guid.NewGuid()}{extension}";
+
+        var newFilePath =
+            Path.Combine(uploadPath, newFileName);
+
+        using (var stream = new FileStream(
+            newFilePath,
+            FileMode.Create))
+        {
+            await image.CopyToAsync(stream);
+        }
+
+        var oldFilePath = Path.Combine(
+            Directory.GetCurrentDirectory(),
+            "wwwroot",
+            existingImage.ImageUrl
+                .TrimStart('/')
+                .Replace(
+                    "/",
+                    Path.DirectorySeparatorChar.ToString()));
+
+        if (System.IO.File.Exists(oldFilePath))
+        {
+            System.IO.File.Delete(oldFilePath);
+        }
+
+        existingImage.ImageUrl =
+            $"/uploads/products/{newFileName}";
+
+        _productImageService.UpdateProductImage(
+            existingImage);
+
+        return Json(new
+        {
+            success = true
+        });
+    }
     [HttpPost]
     [ValidateAntiForgeryToken]
     public IActionResult SetPrimaryImage(int id)

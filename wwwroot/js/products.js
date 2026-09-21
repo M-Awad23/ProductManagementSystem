@@ -331,6 +331,64 @@ function setPrimaryImage(id) {
             console.error(error);
         });
 }
+
+function replaceProductImage(id, input) {
+
+    if (!input.files || input.files.length === 0) {
+        return;
+    }
+
+    const token = document.querySelector(
+        'input[name="__RequestVerificationToken"]'
+    );
+
+    if (!token) {
+        console.error("Anti-forgery token not found.");
+        return;
+    }
+
+    const formData = new FormData();
+
+    formData.append("id", id);
+    formData.append("image", input.files[0]);
+    formData.append(
+        "__RequestVerificationToken",
+        token.value
+    );
+
+    fetch("/Product/ReplaceImage", {
+        method: "POST",
+        body: formData
+    })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(
+                    "Image replacement failed: " +
+                    response.status
+                );
+            }
+
+            return response.json();
+        })
+        .then(result => {
+            if (result.success) {
+                const productId =
+                    document.querySelector(
+                        ".product-details"
+                    )
+                    .querySelector(
+                        ".retro-panel-header p"
+                    )
+                    .textContent
+                    .replace("PRODUCT #", "");
+
+                showDetails(productId);
+            }
+        })
+        .catch(error => {
+            console.error(error);
+        });
+}
 function deleteProductImage(id) {
 
     if (!confirm("Are you sure you want to delete this image?")) {
