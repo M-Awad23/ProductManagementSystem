@@ -10,7 +10,20 @@
                     <img src="@image.ImageUrl"
                          class="product-detail-image"
                          alt="@Model.Name" />
-
+                    @if (!image.IsPrimary)
+                    {
+                        <button type="button"
+                                class="btn btn-primary"
+                                onclick="setPrimaryImage(@image.Id)">
+                            SET PRIMARY
+                        </button>
+                    }
+                    else
+                    {
+                        <span class="badge bg-success">
+                            PRIMARY
+                        </span>
+                    }
                     <button type="button"
                             class="btn btn-danger"
                             onclick="deleteProductImage(@image.Id)">

@@ -278,7 +278,59 @@ function closeModal() {
         modal.innerHTML = "";
     }
 }
+function setPrimaryImage(id) {
 
+    const token = document.querySelector(
+        'input[name="__RequestVerificationToken"]'
+    );
+
+    if (!token) {
+        console.error("Anti-forgery token not found.");
+        return;
+    }
+
+    fetch("/Product/SetPrimaryImage", {
+        method: "POST",
+        headers: {
+            "Content-Type":
+                "application/x-www-form-urlencoded"
+        },
+        body:
+            "id=" +
+            encodeURIComponent(id) +
+            "&__RequestVerificationToken=" +
+            encodeURIComponent(token.value)
+    })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(
+                    "Failed to set primary image: " +
+                    response.status
+                );
+            }
+
+            return response.json();
+        })
+        .then(result => {
+            if (result.success) {
+                const productDetails =
+                    document.querySelector(".product-details");
+
+                const productId =
+                    productDetails
+                        .querySelector(
+                            ".retro-panel-header p"
+                        )
+                        .textContent
+                        .replace("PRODUCT #", "");
+
+                showDetails(productId);
+            }
+        })
+        .catch(error => {
+            console.error(error);
+        });
+}
 function deleteProductImage(id) {
 
     if (!confirm("Are you sure you want to delete this image?")) {
