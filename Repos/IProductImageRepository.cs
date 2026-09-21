@@ -2,7 +2,7 @@
 
 namespace ProductManagementSystem.Services
 {
-    public interface IProductImageService
+    public interface IProductImageRepository
     {
         IEnumerable<ProductImage> GetAllProductImages();
         ProductImage? GetProductImageById(int id);

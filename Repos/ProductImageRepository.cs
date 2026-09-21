@@ -1,5 +1,6 @@
-﻿using ProductManagementSystem.Models;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
+using ProductManagementSystem.Models;
+using ProductManagementSystem.Services;
 namespace ProductManagementSystem.Repos
 {
     public class ProductImageRepository : IProductImageRepository
