@@ -7,24 +7,22 @@
             @foreach (var image in Model.ProductImages)
             {
                 <div class="product-image-item">
-                    <input type="file"
-                           id="replaceImageInput-@image.Id"
-                           accept="image/*"
-                           style="display:none;" />
-
                     <button type="button"
                             class="btn btn-secondary"
                             onclick="document.getElementById('replaceImageInput-@image.Id').click()">
                         REPLACE
                     </button>
+
                     <input type="file"
                            id="replaceImageInput-@image.Id"
                            accept="image/*"
                            style="display:none;"
                            onchange="replaceProductImage(@image.Id, this)" />
+
                     <img src="@image.ImageUrl"
                          class="product-detail-image"
                          alt="@Model.Name" />
+
                     @if (!image.IsPrimary)
                     {
                         <button type="button"
@@ -39,6 +37,7 @@
                             PRIMARY
                         </span>
                     }
+
                     <button type="button"
                             class="btn btn-danger"
                             onclick="deleteProductImage(@image.Id)">
