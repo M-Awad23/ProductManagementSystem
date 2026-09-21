@@ -6,6 +6,16 @@ namespace ProductManagementSystem.Controllers
 {
     public class AccountController : Controller
     {
+
+        private static readonly string[] AllowedImageExtensions =
+{
+    ".jpg",
+    ".jpeg",
+    ".png",
+    ".gif"
+};
+
+        private const long MaxProfilePhotoSize = 5 * 1024 * 1024;
         private readonly UserManager<User> _userManager;
         private readonly SignInManager<User> _signInManager;
 
@@ -145,7 +155,26 @@ namespace ProductManagementSystem.Controllers
                     message = "Please select an image."
                 });
             }
+            var extension = Path.GetExtension(photo.FileName).ToLowerInvariant();
 
+            if (!AllowedImageExtensions.Contains(extension))
+            {
+                return BadRequest(new
+                {
+                    success = false,
+                    message = "Only JPG, JPEG, and PNG images are allowed."
+                });
+            }
+
+
+            if (photo.Length > MaxProfilePhotoSize)
+            {
+                return BadRequest(new
+                {
+                    success = false,
+                    message = "Profile photo must be 5 MB or smaller."
+                });
+            }
             var uploadPath = Path.Combine(
                 Directory.GetCurrentDirectory(),
                 "wwwroot",
@@ -169,7 +198,6 @@ namespace ProductManagementSystem.Controllers
                 }
             }
 
-            var extension = Path.GetExtension(photo.FileName);
             var fileName = $"{Guid.NewGuid()}{extension}";
             var filePath = Path.Combine(uploadPath, fileName);
 
@@ -189,7 +217,57 @@ namespace ProductManagementSystem.Controllers
                 photoUrl = user.ProfilePhotoUrl
             });
         }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteProfilePhoto()
+        {
+            var user = await _userManager.GetUserAsync(User);
 
+            if (user == null)
+            {
+                return Unauthorized(new
+                {
+                    success = false,
+                    message = "You are not logged in."
+                });
+            }
+
+            if (!string.IsNullOrEmpty(user.ProfilePhotoUrl))
+            {
+                var filePath = Path.Combine(
+                    Directory.GetCurrentDirectory(),
+                    "wwwroot",
+                    user.ProfilePhotoUrl
+                        .TrimStart('/')
+                        .Replace(
+                            "/",
+                            Path.DirectorySeparatorChar.ToString()));
+
+                if (System.IO.File.Exists(filePath))
+                {
+                    System.IO.File.Delete(filePath);
+                }
+
+                user.ProfilePhotoUrl = null;
+
+                var result = await _userManager.UpdateAsync(user);
+
+                if (!result.Succeeded)
+                {
+                    return BadRequest(new
+                    {
+                        success = false,
+                        message = "Failed to remove profile photo."
+                    });
+                }
+            }
+
+            return Json(new
+            {
+                success = true,
+                message = "Profile photo removed successfully."
+            });
+        }
 
         [HttpGet]
         public IActionResult ChangeEmail()
