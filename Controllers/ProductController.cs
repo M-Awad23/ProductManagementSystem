@@ -438,6 +438,61 @@ public class ProductController : Controller
 		return PartialView("_ProductList", products);
 	}
 
+    public async Task<IActionResult> Deleted()
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var products = await _productService.GetDeletedProductsAsync(userId);
+        return View(products);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Restore(int id)
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var products = await _productService.GetDeletedProductsAsync(userId);
+
+        if (!products.Any(p => p.Id == id))
+        {
+            return NotFound();
+        }
+
+        await _productService.RestoreAsync(id, userId);
+        return RedirectToAction(nameof(Deleted));
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> PermanentDelete(int id)
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var products = await _productService.GetDeletedProductsAsync(userId);
+        var product = products.FirstOrDefault(p => p.Id == id);
+
+        if (product == null)
+        {
+            return NotFound();
+        }
+
+        foreach (var image in product.ProductImages)
+        {
+            var filePath = Path.Combine(
+                Directory.GetCurrentDirectory(),
+                "wwwroot",
+                image.ImageUrl.TrimStart('/').Replace(
+                    "/",
+                    Path.DirectorySeparatorChar.ToString()));
+
+            if (System.IO.File.Exists(filePath))
+            {
+                System.IO.File.Delete(filePath);
+            }
+        }
+
+        await _productService.PermanentDeleteAsync(id, userId);
+        return RedirectToAction(nameof(Deleted));
+    }
+
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteImage(int id)
