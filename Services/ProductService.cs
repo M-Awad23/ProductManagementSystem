@@ -71,6 +71,11 @@ namespace ProductManagementSystem.Services
         }
         
 
+        public async Task<List<Product>> GetUserProductsAsync(string userId)
+        {
+            return await _productRepository.GetUserProductsAsync(userId);
+        }
+
         public async Task AddAsync(Product product)
         {
             await _productRepository.AddAsync(product);
