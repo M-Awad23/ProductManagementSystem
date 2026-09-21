@@ -30,6 +30,7 @@ namespace ProductManagementSystem.Services
     int? maxQuantity);
 
         Task<Product?> GetByIdAsync(int id, string userId);
+        Task<List<Product>> GetUserProductsAsync(string userId);
         Task<List<Product>> GetDeletedProductsAsync(string userId);
         Task AddAsync(Product product);
 
