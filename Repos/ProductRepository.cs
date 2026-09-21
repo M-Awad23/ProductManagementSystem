@@ -26,7 +26,8 @@ namespace ProductManagementSystem.Repositories
     int pageSize)
         {
             var products = _context.Products
-                .Where(p => p.UserId == userId);
+    .Include(p => p.ProductImages)
+    .Where(p => p.UserId == userId);
 
             if (!string.IsNullOrWhiteSpace(search))
             {
@@ -185,9 +186,10 @@ namespace ProductManagementSystem.Repositories
         public async Task<Product?> GetByIdAsync(int id, string userId)
         {
             return await _context.Products
-                .FirstOrDefaultAsync(p =>
-                    p.Id == id &&
-                    p.UserId == userId);
+    .Include(p => p.ProductImages)
+    .FirstOrDefaultAsync(p =>
+        p.Id == id &&
+        p.UserId == userId);
         }
 
         public async Task AddAsync(Product product)

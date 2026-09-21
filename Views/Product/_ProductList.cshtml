@@ -5,6 +5,13 @@
     @foreach (var product in Model)
     {
         <div class="product-card">
+            @if (product.ProductImages.Any())
+            {
+                <img src="@product.ProductImages.First().ImageUrl"
+                     class="product-image"
+                     alt="@product.Name" />
+            }
+
 
             <div class="product-name">
                 @product.Name

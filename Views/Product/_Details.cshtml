@@ -1,7 +1,17 @@
 ﻿@model ProductManagementSystem.Models.Product
 
 <div class="product-details">
-
+    @if (Model.ProductImages.Any())
+{
+    <div class="product-images">
+        @foreach (var image in Model.ProductImages)
+        {
+            <img src="@image.ImageUrl"
+                 class="product-detail-image"
+                 alt="@Model.Name" />
+        }
+    </div>
+}
     <div class="retro-panel-header">
         <h2>PRODUCT DETAILS</h2>
         <p>PRODUCT #@Model.Id</p>
