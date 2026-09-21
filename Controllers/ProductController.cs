@@ -318,24 +318,6 @@ public class ProductController : Controller
             return NotFound();
         }
 
-        foreach (var image in _productImageService.GetAllProductImages()
-            .Where(x => x.ProductId == id))
-        {
-            var filePath = Path.Combine(
-                Directory.GetCurrentDirectory(),
-                "wwwroot",
-                image.ImageUrl.TrimStart('/').Replace(
-                    "/",
-                    Path.DirectorySeparatorChar.ToString()));
-
-            if (System.IO.File.Exists(filePath))
-            {
-                System.IO.File.Delete(filePath);
-            }
-
-            _productImageService.DeleteProductImage(image.Id);
-        }
-
         await _productService.DeleteAsync(id, userId);
 
         var products = await _productService.GetProductsAsync(
@@ -353,5 +335,5 @@ public class ProductController : Controller
             8);
 
         return PartialView("_ProductList", products);
-    }   
+    }
 }

@@ -27,7 +27,7 @@ namespace ProductManagementSystem.Repositories
         {
             var products = _context.Products
     .Include(p => p.ProductImages)
-    .Where(p => p.UserId == userId);
+    .Where(p => p.UserId == userId && !p.IsDeleted);
 
             if (!string.IsNullOrWhiteSpace(search))
             {
@@ -129,7 +129,7 @@ namespace ProductManagementSystem.Repositories
     int? maxQuantity)
         {
             var products = _context.Products
-                .Where(p => p.UserId == userId);
+                .Where(p => p.UserId == userId && !p.IsDeleted);
 
             if (!string.IsNullOrWhiteSpace(search))
             {
@@ -179,7 +179,7 @@ namespace ProductManagementSystem.Repositories
         public async Task<List<Product>> GetUserProductsAsync(string userId)
         {
             return await _context.Products
-                .Where(p => p.UserId == userId)
+                .Where(p => p.UserId == userId && !p.IsDeleted)
                 .ToListAsync();
         }
 
@@ -189,7 +189,10 @@ namespace ProductManagementSystem.Repositories
     .Include(p => p.ProductImages)
     .FirstOrDefaultAsync(p =>
         p.Id == id &&
-        p.UserId == userId);
+        p.UserId == userId && !p.IsDeleted);
+
+
+
         }
 
         public async Task AddAsync(Product product)
@@ -209,11 +212,12 @@ namespace ProductManagementSystem.Repositories
             var product = await _context.Products
                 .FirstOrDefaultAsync(p =>
                     p.Id == id &&
-                    p.UserId == userId);
+                    p.UserId == userId &&
+                    !p.IsDeleted);
 
             if (product != null)
             {
-                _context.Products.Remove(product);
+                product.IsDeleted = true;
                 await _context.SaveChangesAsync();
             }
         }
