@@ -186,10 +186,13 @@ namespace ProductManagementSystem.Repositories
         public async Task<Product?> GetByIdAsync(int id, string userId)
         {
             return await _context.Products
-    .Include(p => p.ProductImages)
-    .FirstOrDefaultAsync(p =>
-        p.Id == id &&
-        p.UserId == userId && !p.IsDeleted);
+     .Include(p => p.ProductImages)
+     .Include(p => p.ProductTags)
+         .ThenInclude(pt => pt.Tag)
+     .FirstOrDefaultAsync(p =>
+         p.Id == id &&
+         p.UserId == userId &&
+         !p.IsDeleted);
 
 
 
