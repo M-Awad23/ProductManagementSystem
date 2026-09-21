@@ -121,13 +121,13 @@
                 class="form-select"
                 multiple>
 
-            @foreach (var tag in ViewBag.Tags)
-            {
-                <option value="@tag.Id">
-                    @tag.Name
-                </option>
-            }
-
+        @foreach (var tag in ViewBag.Tags)
+{
+    <option value="@tag.Id"
+            selected="@(Model.ProductTags.Any(pt => pt.TagId == tag.Id))">
+        @tag.Name
+    </option>
+}
         </select>
 
       

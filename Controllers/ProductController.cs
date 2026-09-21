@@ -27,16 +27,21 @@ public class ProductController : Controller
 	private readonly ISupplierService _supplierService;
 	private readonly ITagService _tagService;
 
-	public ProductController(
+    private readonly IProductTagService _productTagService;
+
+    public ProductController(
 		IProductImageService productImageService,
 		IProductService productService,
 		ICategoryService categoryService,
 		IBrandService brandService,
 		ISupplierService supplierService,
 		ITagService tagService,
-		IPdfService pdfService)
+            IProductTagService productTagService,
+
+        IPdfService pdfService)
 	{
-		_pdfService = pdfService;
+        _productTagService = productTagService;
+        _pdfService = pdfService;
 		_productService = productService;
 		_categoryService = categoryService;
 		_brandService = brandService;
@@ -140,16 +145,11 @@ public class ProductController : Controller
 
 		await _productService.AddAsync(product);
 
-        if (tagIds != null)
+        if (tagIds != null && tagIds.Any())
         {
-            foreach (var tagId in tagIds)
-            {
-                product.ProductTags.Add(new ProductTag
-                {
-                    ProductId = product.Id,
-                    TagId = tagId
-                });
-            }
+            _productTagService.AddProductTags(
+                product.Id,
+                tagIds);
         }
 
         if (images != null)
@@ -263,12 +263,13 @@ public class ProductController : Controller
 
 	[HttpPost]
 	[ValidateAntiForgeryToken]
-	public async Task<IActionResult> Edit(
-	 int id,
-	 [Bind("Id,Name,Description,Price,Quantity,CategoryId,BrandId,SupplierId")]
-	Product product,
-	 List<IFormFile>? images)
-	{
+    public async Task<IActionResult> Edit(
+    int id,
+    [Bind("Id,Name,Description,Price,Quantity,CategoryId,BrandId,SupplierId")]
+    Product product,
+    List<IFormFile>? images,
+    List<int>? tagIds)
+    {
 		var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
 		var existingProduct = await _productService.GetByIdAsync(
@@ -304,8 +305,14 @@ public class ProductController : Controller
 		existingProduct.BrandId = product.BrandId;
 		existingProduct.SupplierId = product.SupplierId;
 
+		
+		
 		await _productService.UpdateAsync(existingProduct);
-		if (images != null)
+
+        _productTagService.ReplaceProductTags(
+    product.Id,
+    tagIds ?? new List<int>());
+        if (images != null)
 		{
 			var uploadPath = Path.Combine(
 				Directory.GetCurrentDirectory(),
