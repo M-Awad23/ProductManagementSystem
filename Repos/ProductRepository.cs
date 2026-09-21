@@ -179,7 +179,14 @@ namespace ProductManagementSystem.Repositories
         public async Task<List<Product>> GetUserProductsAsync(string userId)
         {
             return await _context.Products
+                .Include(p => p.Category)
+                .Include(p => p.Brand)
+                .Include(p => p.Supplier)
+                .Include(p => p.ProductImages)
+                .Include(p => p.ProductTags)
+                    .ThenInclude(pt => pt.Tag)
                 .Where(p => p.UserId == userId && !p.IsDeleted)
+                .OrderByDescending(p => p.CreatedAt)
                 .ToListAsync();
         }
 
