@@ -210,6 +210,52 @@ namespace ProductManagementSystem.Repositories
             await _context.SaveChangesAsync();
         }
 
+        public async Task<List<Product>> GetDeletedProductsAsync(string userId)
+        {
+            return await _context.Products
+                .Include(p => p.ProductImages)
+                .Include(p => p.ProductTags)
+                    .ThenInclude(pt => pt.Tag)
+                .Where(p =>
+                    p.UserId == userId &&
+                    p.IsDeleted)
+                .OrderByDescending(p => p.DeletedAt)
+                .ToListAsync();
+        }
+
+        public async Task RestoreAsync(int id, string userId)
+        {
+            var product = await _context.Products
+                .FirstOrDefaultAsync(p =>
+                    p.Id == id &&
+                    p.UserId == userId &&
+                    p.IsDeleted);
+
+            if (product != null)
+            {
+                product.IsDeleted = false;
+                product.DeletedAt = null;
+                await _context.SaveChangesAsync();
+            }
+        }
+
+        public async Task PermanentDeleteAsync(int id, string userId)
+        {
+            var product = await _context.Products
+                .Include(p => p.ProductImages)
+                .Include(p => p.ProductTags)
+                .FirstOrDefaultAsync(p =>
+                    p.Id == id &&
+                    p.UserId == userId &&
+                    p.IsDeleted);
+
+            if (product != null)
+            {
+                _context.Products.Remove(product);
+                await _context.SaveChangesAsync();
+            }
+        }
+
         public async Task DeleteAsync(int id, string userId)
         {
             var product = await _context.Products
