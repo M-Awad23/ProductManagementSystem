@@ -7,6 +7,8 @@ using ProductManagementSystem.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
+QuestPDF.Settings.License = QuestPDF.Infrastructure.LicenseType.Evaluation;
+
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
