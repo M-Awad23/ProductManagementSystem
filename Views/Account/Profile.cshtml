@@ -6,6 +6,7 @@
     {
         <img src="@Model.ProfilePhotoUrl"
              alt="Profile Photo"
+             data-profile-photo
              style="width:150px;height:150px;object-fit:cover;" />
     }
 </div>
@@ -63,5 +64,5 @@
 <div id="changePasswordContainer"></div>
 
 @section Scripts {
-    <script src="~/js/account.js"></script>
+    <script src="~/js/account.js" asp-append-version="true"></script>
 }
