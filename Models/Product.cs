@@ -16,7 +16,7 @@ namespace ProductManagementSystem.Models
 
         public bool IsDeleted { get; set; } = false;
         public DateTime? DeletedAt { get; set; }
-        public string UserId { get; set; }
+        public string? UserId { get; set; }
 
         public User? User { get; set; }
 
