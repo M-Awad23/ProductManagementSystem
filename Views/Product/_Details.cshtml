@@ -4,12 +4,20 @@
     @if (Model.ProductImages.Any())
 {
     <div class="product-images">
-        @foreach (var image in Model.ProductImages)
-        {
-            <img src="@image.ImageUrl"
-                 class="product-detail-image"
-                 alt="@Model.Name" />
-        }
+            @foreach (var image in Model.ProductImages)
+            {
+                <div class="product-image-item">
+                    <img src="@image.ImageUrl"
+                         class="product-detail-image"
+                         alt="@Model.Name" />
+
+                    <button type="button"
+                            class="btn btn-danger"
+                            onclick="deleteProductImage(@image.Id)">
+                        DELETE
+                    </button>
+                </div>
+            }
     </div>
 }
     <div class="retro-panel-header">
