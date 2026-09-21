@@ -42,5 +42,12 @@ namespace ProductManagementSystem.Services
             _productImageRepository
                 .DeleteProductImage(id, userId);
         }
+
+        public void SetPrimaryImage(int imageId, string userId)
+        {
+            _productImageRepository.SetPrimaryImage(
+                imageId,
+                userId);
+        }
     }
 }   

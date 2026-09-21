@@ -28,6 +28,33 @@ namespace ProductManagementSystem.Repos
             _context.ProductImages.Add(productImage);
             _context.SaveChanges();
         }
+
+        public void SetPrimaryImage(int imageId, string userId)
+        {
+            var image = _context.ProductImages
+                .Include(i => i.Product)
+                .FirstOrDefault(i =>
+                    i.Id == imageId &&
+                    i.Product != null &&
+                    i.Product.UserId == userId);
+
+            if (image == null)
+            {
+                return;
+            }
+
+            var productImages = _context.ProductImages
+                .Where(i => i.ProductId == image.ProductId);
+
+            foreach (var productImage in productImages)
+            {
+                productImage.IsPrimary = false;
+            }
+
+            image.IsPrimary = true;
+
+            _context.SaveChanges();
+        }
         public void UpdateProductImage(ProductImage productImage)
         {
             _context.ProductImages.Update(productImage);
