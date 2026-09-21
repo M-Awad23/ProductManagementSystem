@@ -137,11 +137,46 @@ public class ProductController : Controller
 
 		ModelState.Remove(nameof(Product.UserId));
 		ModelState.Remove(nameof(Product.User));
+        ModelState.Remove(nameof(Product.ProductTags));
+        ModelState.Remove(nameof(Product.ProductImages));
 
 		if (!ModelState.IsValid)
 		{
 			return BadRequest(ModelState);
 		}
+
+        if (images != null)
+        {
+            foreach (var image in images)
+            {
+                if (image.Length == 0)
+                {
+                    continue;
+                }
+
+                var extension =
+                    Path.GetExtension(image.FileName)
+                        .ToLowerInvariant();
+
+                if (!AllowedImageExtensions.Contains(extension))
+                {
+                    return BadRequest(new
+                    {
+                        success = false,
+                        message = "Only JPG, JPEG, PNG, and GIF images are allowed."
+                    });
+                }
+
+                if (image.Length > MaxProductImageSize)
+                {
+                    return BadRequest(new
+                    {
+                        success = false,
+                        message = "Product images must be 5 MB or smaller."
+                    });
+                }
+            }
+        }
 
 		await _productService.AddAsync(product);
 
@@ -172,24 +207,6 @@ public class ProductController : Controller
                 var extension =
                     Path.GetExtension(image.FileName)
                         .ToLowerInvariant();
-
-                if (!AllowedImageExtensions.Contains(extension))
-                {
-                    return BadRequest(new
-                    {
-                        success = false,
-                        message = "Only JPG, JPEG, PNG, and GIF images are allowed."
-                    });
-                }
-
-                if (image.Length > MaxProductImageSize)
-                {
-                    return BadRequest(new
-                    {
-                        success = false,
-                        message = "Product images must be 5 MB or smaller."
-                    });
-                }
 
                 var fileName = $"{Guid.NewGuid()}{extension}";
                 var filePath = Path.Combine(uploadPath, fileName);
