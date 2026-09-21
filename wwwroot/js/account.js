@@ -42,7 +42,62 @@ if (profilePhotoForm) {
             profilePhotoForm.reset();
         }
     });
-}
+    }
+
+
+    const deleteProfilePhotoButton =
+        document.getElementById("deleteProfilePhotoBtn");
+
+    if (deleteProfilePhotoButton) {
+        deleteProfilePhotoButton.addEventListener(
+            "click",
+            async function () {
+
+                if (!confirm("Are you sure you want to delete your profile photo?")) {
+                    return;
+                }
+
+                const token =
+                    document.querySelector(
+                        '#profilePhotoForm input[name="__RequestVerificationToken"]'
+                    );
+
+                const formData = new FormData();
+
+                if (token) {
+                    formData.append(
+                        "__RequestVerificationToken",
+                        token.value
+                    );
+                }
+
+                const response = await fetch(
+                    "/Account/DeleteProfilePhoto",
+                    {
+                        method: "POST",
+                        body: formData
+                    }
+                );
+
+                const result = await response.json();
+
+                document.getElementById(
+                    "profilePhotoMessage"
+                ).textContent = result.message || "";
+
+                if (result.success) {
+                    const image =
+                        document.querySelector(
+                            "[data-profile-photo]"
+                        );
+
+                    if (image) {
+                        image.remove();
+                    }
+                }
+            }
+        );
+    }
     const changeEmailButton =
         document.getElementById("changeEmailButton");
 
