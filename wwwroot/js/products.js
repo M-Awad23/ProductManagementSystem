@@ -279,6 +279,61 @@ function closeModal() {
     }
 }
 
+function deleteProductImage(id) {
+
+    if (!confirm("Are you sure you want to delete this image?")) {
+        return;
+    }
+
+    const token = document.querySelector(
+        'input[name="__RequestVerificationToken"]'
+    );
+
+    if (!token) {
+        console.error("Anti-forgery token not found.");
+        return;
+    }
+
+    fetch("/Product/DeleteImage", {
+        method: "POST",
+        headers: {
+            "Content-Type":
+                "application/x-www-form-urlencoded"
+        },
+        body:
+            "id=" +
+            encodeURIComponent(id) +
+            "&__RequestVerificationToken=" +
+            encodeURIComponent(token.value)
+    })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(
+                    "Image deletion failed: " +
+                    response.status
+                );
+            }
+
+            return response.json();
+        })
+        .then(result => {
+
+            if (result.success) {
+                showDetails(
+                    document.querySelector(
+                        ".product-details"
+                    ).querySelector(
+                        ".retro-panel-header p"
+                    ).textContent
+                        .replace("PRODUCT #", "")
+                );
+            }
+        })
+        .catch(error => {
+            console.error(error);
+        });
+}
+
 function loadProductPage(page) {
 
     const searchForm =
