@@ -17,9 +17,12 @@ namespace ProductManagementSystem.Services
             return _productImageRepository.GetAllProductImages();
         }
 
-        public ProductImage? GetProductImageById(int id)
+        public ProductImage? GetProductImageById(
+    int id,
+    string userId)
         {
-            return _productImageRepository.GetProductImageById(id);
+            return _productImageRepository
+                .GetProductImageById(id, userId);
         }
 
         public void AddProductImage(ProductImage productImage)
@@ -32,9 +35,12 @@ namespace ProductManagementSystem.Services
             _productImageRepository.UpdateProductImage(productImage);
         }
 
-        public void DeleteProductImage(int id)
+        public void DeleteProductImage(
+    int id,
+    string userId)
         {
-            _productImageRepository.DeleteProductImage(id);
+            _productImageRepository
+                .DeleteProductImage(id, userId);
         }
     }
-}
+}   

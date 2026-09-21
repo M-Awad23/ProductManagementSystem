@@ -14,9 +14,14 @@ namespace ProductManagementSystem.Repos
         {
             return _context.ProductImages.ToList();
         }
-        public ProductImage? GetProductImageById(int id)
+        public ProductImage? GetProductImageById(int id, string userId)
         {
-            return _context.ProductImages.Find(id);
+            return _context.ProductImages
+                .Include(i => i.Product)
+                .FirstOrDefault(i =>
+                    i.Id == id &&
+                    i.Product != null &&
+                    i.Product.UserId == userId);
         }
         public void AddProductImage(ProductImage productImage)
         {
@@ -28,9 +33,15 @@ namespace ProductManagementSystem.Repos
             _context.ProductImages.Update(productImage);
             _context.SaveChanges();
         }
-        public void DeleteProductImage(int id)
+        public void DeleteProductImage(int id, string userId)
         {
-            var productImage = _context.ProductImages.Find(id);
+            var productImage = _context.ProductImages
+                .Include(i => i.Product)
+                .FirstOrDefault(i =>
+                    i.Id == id &&
+                    i.Product != null &&
+                    i.Product.UserId == userId);
+
             if (productImage != null)
             {
                 _context.ProductImages.Remove(productImage);

@@ -417,4 +417,43 @@ public class ProductController : Controller
 
 		return PartialView("_ProductList", products);
 	}
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> DeleteImage(int id)
+    {
+        var userId =
+            User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        var image =
+            _productImageService.GetProductImageById(
+                id,
+                userId);
+
+        if (image == null)
+        {
+            return NotFound();
+        }
+
+        var filePath = Path.Combine(
+            Directory.GetCurrentDirectory(),
+            "wwwroot",
+            image.ImageUrl.TrimStart('/').Replace(
+                "/",
+                Path.DirectorySeparatorChar.ToString()));
+
+        if (System.IO.File.Exists(filePath))
+        {
+            System.IO.File.Delete(filePath);
+        }
+
+        _productImageService.DeleteProductImage(
+            id,
+            userId);
+
+        return Json(new
+        {
+            success = true
+        });
+    }
 }
