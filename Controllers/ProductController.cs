@@ -119,11 +119,12 @@ public class ProductController : Controller
 
 	[HttpPost]
 	[ValidateAntiForgeryToken]
-	public async Task<IActionResult> Create(
-	 [Bind("Name,Description,Price,Quantity,CategoryId,BrandId,SupplierId")]
-	Product product,
-	 List<IFormFile>? images)
-	{
+    public async Task<IActionResult> Create(
+    [Bind("Name,Description,Price,Quantity,CategoryId,BrandId,SupplierId")]
+    Product product,
+    List<IFormFile>? images,
+    List<int>? tagIds)
+    {
 		var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
 		product.UserId = userId;
@@ -139,7 +140,19 @@ public class ProductController : Controller
 
 		await _productService.AddAsync(product);
 
-		if (images != null)
+        if (tagIds != null)
+        {
+            foreach (var tagId in tagIds)
+            {
+                product.ProductTags.Add(new ProductTag
+                {
+                    ProductId = product.Id,
+                    TagId = tagId
+                });
+            }
+        }
+
+        if (images != null)
 		{
 			var uploadPath = Path.Combine(
 				Directory.GetCurrentDirectory(),
