@@ -9,6 +9,7 @@ namespace ProductManagementSystem.Controllers;
 [Authorize]
 public class ProductController : Controller
 {
+    private readonly IProductImageService _productImageService;
     private readonly IProductService _productService;
     private readonly ICategoryService _categoryService;
     private readonly IBrandService _brandService;
@@ -16,6 +17,7 @@ public class ProductController : Controller
     private readonly ITagService _tagService;
 
     public ProductController(
+        IProductImageService productImageService,
         IProductService productService,
         ICategoryService categoryService,
         IBrandService brandService,
@@ -27,6 +29,7 @@ public class ProductController : Controller
         _brandService = brandService;
         _supplierService = supplierService;
         _tagService = tagService;
+        _productImageService = productImageService;
     }
 
     private void LoadProductFormData()
