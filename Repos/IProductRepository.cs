@@ -1,22 +1,22 @@
-﻿using ProductManagementSystem.Models;
+using ProductManagementSystem.Models;
 
 namespace ProductManagementSystem.Repositories
 {
     public interface IProductRepository
     {
         Task<List<Product>> GetProductsAsync(
-    string userId,
-    string? search,
-    string? sortOrder,
-    int? categoryId,
-    int? brandId,
-    int? supplierId,
-    decimal? minPrice,
-    decimal? maxPrice,
-    int? minQuantity,
-    int? maxQuantity,
-    int page,
-    int pageSize);
+            string userId,
+            string? search,
+            string? sortOrder,
+            int? categoryId,
+            int? brandId,
+            int? supplierId,
+            decimal? minPrice,
+            decimal? maxPrice,
+            int? minQuantity,
+            int? maxQuantity,
+            int page,
+            int pageSize);
 
         Task<int> GetProductCountAsync(
             string userId,
@@ -30,8 +30,11 @@ namespace ProductManagementSystem.Repositories
             int? maxQuantity);
 
         Task<Product?> GetByIdAsync(int id, string userId);
+        Task<List<Product>> GetDeletedProductsAsync(string userId);
         Task AddAsync(Product product);
         Task UpdateAsync(Product product);
         Task DeleteAsync(int id, string userId);
+        Task RestoreAsync(int id, string userId);
+        Task PermanentDeleteAsync(int id, string userId);
     }
 }
