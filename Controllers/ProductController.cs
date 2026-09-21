@@ -9,6 +9,7 @@ namespace ProductManagementSystem.Controllers;
 [Authorize]
 public class ProductController : Controller
 {
+    private readonly IPdfService _pdfService;
     private readonly IProductImageService _productImageService;
     private readonly IProductService _productService;
     private readonly ICategoryService _categoryService;
@@ -22,8 +23,10 @@ public class ProductController : Controller
         ICategoryService categoryService,
         IBrandService brandService,
         ISupplierService supplierService,
-        ITagService tagService)
+        ITagService tagService,
+        IPdfService pdfService)
     {
+        _pdfService = pdfService;
         _productService = productService;
         _categoryService = categoryService;
         _brandService = brandService;
@@ -303,6 +306,25 @@ public class ProductController : Controller
             8);
 
         return PartialView("_ProductList", products);
+    }
+
+    public async Task<IActionResult> DownloadPdf(int id)
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        var product = await _productService.GetByIdAsync(id, userId);
+
+        if (product == null)
+        {
+            return NotFound();
+        }
+
+        var pdf = _pdfService.GenerateProductPdf(product);
+
+        return File(
+            pdf,
+            "application/pdf",
+            $"Product-{product.Id}.pdf");
     }
 
     [HttpPost]
