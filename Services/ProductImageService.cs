@@ -11,7 +11,8 @@ namespace ProductManagementSystem.Services
             ".jpg",
             ".jpeg",
             ".png",
-            ".gif"
+            ".gif",
+            ".webp"
         };
 
         private const long MaxProductImageSize = 5 * 1024 * 1024;
@@ -273,7 +274,7 @@ namespace ProductManagementSystem.Services
 
             if (!AllowedImageExtensions.Contains(extension))
             {
-                return "Only JPG, JPEG, PNG, and GIF images are allowed.";
+                return "Only JPG, JPEG, PNG, WEBP, and GIF images are allowed.";
             }
 
             if (image.Length > MaxProductImageSize)
