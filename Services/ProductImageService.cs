@@ -35,13 +35,9 @@ namespace ProductManagementSystem.Services
             return _productImageRepository.GetAllProductImages();
         }
 
-        public ProductImage? GetProductImageById(
-            int id,
-            string userId)
+        public ProductImage? GetProductImageById(int id, string userId)
         {
-            return _productImageRepository.GetProductImageById(
-                id,
-                userId);
+            return _productImageRepository.GetProductImageById(id, userId);
         }
 
         public async Task<(bool Success, string? ErrorMessage)> AddProductImagesAsync(
@@ -83,35 +79,27 @@ namespace ProductManagementSystem.Services
                     continue;
                 }
 
-                var extension =
-                    Path.GetExtension(image.FileName)
-                        .ToLowerInvariant();
+                var extension = Path.GetExtension(image.FileName)
+                    .ToLowerInvariant();
 
-                var fileName =
-                    $"{Guid.NewGuid()}{extension}";
-
-                var filePath =
-                    Path.Combine(uploadPath, fileName);
+                var fileName = $"{Guid.NewGuid()}{extension}";
+                var filePath = Path.Combine(uploadPath, fileName);
 
                 try
                 {
-                    await using var stream =
-                        new FileStream(
-                            filePath,
-                            FileMode.Create);
+                    await using var stream = new FileStream(
+                        filePath,
+                        FileMode.Create);
 
                     await image.CopyToAsync(stream);
 
                     var productImage = new ProductImage
                     {
-                        ImageUrl =
-                            $"/uploads/products/{fileName}",
-
+                        ImageUrl = $"/uploads/products/{fileName}",
                         ProductId = productId
                     };
 
-                    _productImageRepository
-                        .AddProductImage(productImage);
+                    _productImageRepository.AddProductImage(productImage);
 
                     _logger.LogInformation(
                         "Product image uploaded for ProductId {ProductId} by UserId {UserId}.",
@@ -133,8 +121,7 @@ namespace ProductManagementSystem.Services
 
                     return (
                         false,
-                        "The product image could not be uploaded."
-                    );
+                        "The product image could not be uploaded.");
                 }
             }
 
@@ -147,10 +134,9 @@ namespace ProductManagementSystem.Services
             IFormFile? image)
         {
             var existingImage =
-                _productImageRepository
-                    .GetProductImageById(
-                        imageId,
-                        userId);
+                _productImageRepository.GetProductImageById(
+                    imageId,
+                    userId);
 
             if (existingImage == null)
             {
@@ -162,8 +148,7 @@ namespace ProductManagementSystem.Services
                 return (false, "Please select an image.");
             }
 
-            var validationError =
-                ValidateImage(image);
+            var validationError = ValidateImage(image);
 
             if (validationError != null)
             {
@@ -177,36 +162,29 @@ namespace ProductManagementSystem.Services
 
             Directory.CreateDirectory(uploadPath);
 
-            var extension =
-                Path.GetExtension(image.FileName)
-                    .ToLowerInvariant();
+            var extension = Path.GetExtension(image.FileName)
+                .ToLowerInvariant();
 
-            var newFileName =
-                $"{Guid.NewGuid()}{extension}";
-
-            var newFilePath =
-                Path.Combine(
-                    uploadPath,
-                    newFileName);
+            var newFileName = $"{Guid.NewGuid()}{extension}";
+            var newFilePath = Path.Combine(uploadPath, newFileName);
 
             try
             {
-                await using (var stream =
-                    new FileStream(
-                        newFilePath,
-                        FileMode.Create))
+                await using (var stream = new FileStream(
+                    newFilePath,
+                    FileMode.Create))
                 {
                     await image.CopyToAsync(stream);
                 }
 
-                DeletePhysicalFile(
-                    existingImage.ImageUrl);
+                var oldImageUrl = existingImage.ImageUrl;
 
                 existingImage.ImageUrl =
                     $"/uploads/products/{newFileName}";
 
-                _productImageRepository
-                    .UpdateProductImage(existingImage);
+                _productImageRepository.UpdateProductImage(existingImage);
+
+                DeletePhysicalFile(oldImageUrl);
 
                 _logger.LogInformation(
                     "Product image {ImageId} replaced by UserId {UserId}.",
@@ -230,8 +208,7 @@ namespace ProductManagementSystem.Services
 
                 return (
                     false,
-                    "The product image could not be replaced."
-                );
+                    "The product image could not be replaced.");
             }
         }
 
@@ -240,23 +217,20 @@ namespace ProductManagementSystem.Services
             string userId)
         {
             var image =
-                _productImageRepository
-                    .GetProductImageById(
-                        imageId,
-                        userId);
+                _productImageRepository.GetProductImageById(
+                    imageId,
+                    userId);
 
             if (image == null)
             {
                 return Task.FromResult(false);
             }
 
-            DeletePhysicalFile(
-                image.ImageUrl);
+            DeletePhysicalFile(image.ImageUrl);
 
-            _productImageRepository
-                .DeleteProductImage(
-                    imageId,
-                    userId);
+            _productImageRepository.DeleteProductImage(
+                imageId,
+                userId);
 
             _logger.LogInformation(
                 "Product image {ImageId} deleted by UserId {UserId}.",
@@ -271,20 +245,18 @@ namespace ProductManagementSystem.Services
             string userId)
         {
             var image =
-                _productImageRepository
-                    .GetProductImageById(
-                        imageId,
-                        userId);
+                _productImageRepository.GetProductImageById(
+                    imageId,
+                    userId);
 
             if (image == null)
             {
                 return Task.FromResult(false);
             }
 
-            _productImageRepository
-                .SetPrimaryImage(
-                    imageId,
-                    userId);
+            _productImageRepository.SetPrimaryImage(
+                imageId,
+                userId);
 
             _logger.LogInformation(
                 "Product image {ImageId} set as primary by UserId {UserId}.",
@@ -294,48 +266,40 @@ namespace ProductManagementSystem.Services
             return Task.FromResult(true);
         }
 
-        private static string? ValidateImage(
-            IFormFile image)
+        private static string? ValidateImage(IFormFile image)
         {
-            var extension =
-                Path.GetExtension(image.FileName)
-                    .ToLowerInvariant();
+            var extension = Path.GetExtension(image.FileName)
+                .ToLowerInvariant();
 
             if (!AllowedImageExtensions.Contains(extension))
             {
-                return
-                    "Only JPG, JPEG, PNG, and GIF images are allowed.";
+                return "Only JPG, JPEG, PNG, and GIF images are allowed.";
             }
 
             if (image.Length > MaxProductImageSize)
             {
-                return
-                    "Product images must be 5 MB or smaller.";
+                return "Product images must be 5 MB or smaller.";
             }
 
             return null;
         }
 
-        private void DeletePhysicalFile(
-            string? imageUrl)
+        private void DeletePhysicalFile(string? imageUrl)
         {
             if (string.IsNullOrWhiteSpace(imageUrl))
             {
                 return;
             }
 
-            var relativePath =
-                imageUrl
-                    .TrimStart('/')
-                    .Replace(
-                        "/",
-                        Path.DirectorySeparatorChar
-                            .ToString());
+            var relativePath = imageUrl
+                .TrimStart('/')
+                .Replace(
+                    "/",
+                    Path.DirectorySeparatorChar.ToString());
 
-            var filePath =
-                Path.Combine(
-                    _environment.WebRootPath,
-                    relativePath);
+            var filePath = Path.Combine(
+                _environment.WebRootPath,
+                relativePath);
 
             if (File.Exists(filePath))
             {
