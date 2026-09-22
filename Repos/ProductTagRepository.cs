@@ -11,9 +11,14 @@ namespace ProductManagementSystem.Repos
             _context = context;
         }
 
-        public void AddProductTags(int productId, List<int> tagIds)
+        public void AddProductTags(int productId, List<int> tagIds, string userId)
         {
-            foreach (var tagId in tagIds.Distinct())
+            var validTagIds = _context.Tags
+                .Where(t => t.UserId == userId && tagIds.Contains(t.Id))
+                .Select(t => t.Id)
+                .ToList();
+
+            foreach (var tagId in validTagIds.Distinct())
             {
                 _context.ProductTags.Add(new ProductTag
                 {
@@ -25,7 +30,7 @@ namespace ProductManagementSystem.Repos
             _context.SaveChanges();
         }
 
-        public void ReplaceProductTags(int productId, List<int> tagIds)
+        public void ReplaceProductTags(int productId, List<int> tagIds, string userId)
         {
             var existingTags = _context.ProductTags
                 .Where(pt => pt.ProductId == productId)
@@ -33,7 +38,12 @@ namespace ProductManagementSystem.Repos
 
             _context.ProductTags.RemoveRange(existingTags);
 
-            foreach (var tagId in tagIds.Distinct())
+            var validTagIds = _context.Tags
+                .Where(t => t.UserId == userId && tagIds.Contains(t.Id))
+                .Select(t => t.Id)
+                .ToList();
+
+            foreach (var tagId in validTagIds.Distinct())
             {
                 _context.ProductTags.Add(new ProductTag
                 {

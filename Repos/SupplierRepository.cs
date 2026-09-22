@@ -1,47 +1,29 @@
-﻿using ProductManagementSystem.Models;
+using ProductManagementSystem.Models;
 
 namespace ProductManagementSystem.Repos
 {
     public class SupplierRepository : ISupplierRepository
     {
         private readonly AppDbContext _context;
+        public SupplierRepository(AppDbContext context) => _context = context;
 
-        public SupplierRepository(AppDbContext context)
+        public IEnumerable<Supplier> GetAllSuppliers(string userId) => _context.Suppliers.Where(s => s.UserId == userId).ToList();
+        public Supplier? GetSupplierById(int id, string userId) => _context.Suppliers.FirstOrDefault(s => s.Id == id && s.UserId == userId);
+        public void AddSupplier(Supplier supplier) { _context.Suppliers.Add(supplier); _context.SaveChanges(); }
+        public void UpdateSupplier(Supplier supplier, string userId)
         {
-            _context = context;
-        }
-
-        public IEnumerable<Supplier> GetAllSuppliers()
-        {
-            return _context.Suppliers.ToList();
-        }
-
-        public Supplier? GetSupplierById(int id)
-        {
-            return _context.Suppliers.Find(id);
-        }
-
-        public void AddSupplier(Supplier supplier)
-        {
-            _context.Suppliers.Add(supplier);
+            var existing = GetSupplierById(supplier.Id, userId);
+            if (existing == null) return;
+            existing.Name = supplier.Name;
+            existing.Country = supplier.Country;
             _context.SaveChanges();
         }
-
-        public void UpdateSupplier(Supplier supplier)
+        public void DeleteSupplier(int id, string userId)
         {
-            _context.Suppliers.Update(supplier);
+            var supplier = GetSupplierById(id, userId);
+            if (supplier == null) return;
+            _context.Suppliers.Remove(supplier);
             _context.SaveChanges();
-        }
-
-        public void DeleteSupplier(int id)
-        {
-            var supplier = _context.Suppliers.Find(id);
-
-            if (supplier != null)
-            {
-                _context.Suppliers.Remove(supplier);
-                _context.SaveChanges();
-            }
         }
     }
 }
