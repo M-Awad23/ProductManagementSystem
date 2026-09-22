@@ -26,8 +26,13 @@ namespace ProductManagementSystem.Repositories
     int pageSize)
         {
             var products = _context.Products
-    .Include(p => p.ProductImages)
-    .Where(p => p.UserId == userId && !p.IsDeleted);
+                .Include(p => p.Category)
+                .Include(p => p.Brand)
+                .Include(p => p.Supplier)
+                .Include(p => p.ProductImages)
+                .Include(p => p.ProductTags)
+                    .ThenInclude(pt => pt.Tag)
+                .Where(p => p.UserId == userId && !p.IsDeleted);
 
             if (!string.IsNullOrWhiteSpace(search))
             {
@@ -193,10 +198,13 @@ namespace ProductManagementSystem.Repositories
         public async Task<Product?> GetByIdAsync(int id, string userId)
         {
             return await _context.Products
-     .Include(p => p.ProductImages)
-     .Include(p => p.ProductTags)
-         .ThenInclude(pt => pt.Tag)
-     .FirstOrDefaultAsync(p =>
+                .Include(p => p.Category)
+                .Include(p => p.Brand)
+                .Include(p => p.Supplier)
+                .Include(p => p.ProductImages)
+                .Include(p => p.ProductTags)
+                    .ThenInclude(pt => pt.Tag)
+                .FirstOrDefaultAsync(p =>
          p.Id == id &&
          p.UserId == userId &&
          !p.IsDeleted);
