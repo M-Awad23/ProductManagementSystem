@@ -1,15 +1,15 @@
-﻿using ProductManagementSystem.Models;
+using Microsoft.AspNetCore.Http;
+using ProductManagementSystem.Models;
 
 namespace ProductManagementSystem.Services
 {
     public interface IProductImageService
     {
         IEnumerable<ProductImage> GetAllProductImages();
-
-        void SetPrimaryImage(int imageId, string userId);
         ProductImage? GetProductImageById(int id, string userId);
-        void AddProductImage(ProductImage productImage);
-        void UpdateProductImage(ProductImage productImage);
-        void DeleteProductImage(int id, string userId);
+        Task<(bool Success, string? ErrorMessage)> AddProductImagesAsync(int productId, string userId, IEnumerable<IFormFile>? images);
+        Task<(bool Success, string? ErrorMessage)> ReplaceProductImageAsync(int imageId, string userId, IFormFile? image);
+        Task<bool> DeleteProductImageAsync(int imageId, string userId);
+        Task<bool> SetPrimaryImageAsync(int imageId, string userId);
     }
 }
