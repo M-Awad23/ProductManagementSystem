@@ -1,11 +1,15 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using ProductManagementSystem.Models;
 using ProductManagementSystem.Services;
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace ProductManagementSystem.Controllers
 {
+    [Authorize]
     public class CatalogController : Controller
     {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         private readonly ICategoryService _categoryService;
         private readonly IBrandService _brandService;
         private readonly ISupplierService _supplierService;
@@ -42,6 +46,9 @@ namespace ProductManagementSystem.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult CreateCategory(Category category)
         {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            category.UserId = userId;
             if (string.IsNullOrWhiteSpace(category.Name))
             {
                 TempData["Error"] = "Category name is required.";
@@ -123,6 +130,9 @@ namespace ProductManagementSystem.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult CreateBrand(Brand brand)
         {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            category.UserId = userId;
             if (string.IsNullOrWhiteSpace(brand.Name))
             {
                 TempData["Error"] = "Brand name is required.";
@@ -204,6 +214,9 @@ namespace ProductManagementSystem.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult CreateSupplier(Supplier supplier)
         {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            category.UserId = userId;
             if (string.IsNullOrWhiteSpace(supplier.Name))
             {
                 TempData["Error"] = "Supplier name is required.";
@@ -284,6 +297,9 @@ namespace ProductManagementSystem.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult CreateTag(Tag tag)
         {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            category.UserId = userId;
             if (string.IsNullOrWhiteSpace(tag.Name))
             {
                 TempData["Error"] = "Tag name is required.";

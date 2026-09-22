@@ -9,23 +9,43 @@
     var tags = (IEnumerable<Tag>)ViewBag.Tags;
 }
 
-<h1>Catalog Management</h1>
+<div class="catalog-page">
 
-<div class="row">
+    <div class="catalog-header">
+        <h1>Catalog Management</h1>
+    </div>
 
-    <!-- Categories -->
-    <div class="col-md-6 mb-4">
-        <div class="card">
-            <div class="card-header">
-                <h4>Categories</h4>
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success">
+            @TempData["Success"]
+        </div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger">
+            @TempData["Error"]
+        </div>
+    }
+
+    <div class="catalog-grid">
+
+        <div class="catalog-panel">
+            <div class="catalog-panel-header">
+                <h2>Categories</h2>
             </div>
 
-            <div class="card-body">
+            <div class="catalog-panel-body">
 
-                <form asp-action="CreateCategory" method="post" class="mb-4">
+                <form asp-action="CreateCategory"
+                      method="post"
+                      class="catalog-form">
+
                     @Html.AntiForgeryToken()
 
-                    <div class="input-group">
+                    <div class="catalog-form-row">
+
                         <input name="Name"
                                class="form-control"
                                placeholder="Category name"
@@ -39,58 +59,157 @@
                                 class="btn btn-primary">
                             Add
                         </button>
+
                     </div>
+
                 </form>
 
                 @foreach (var category in categories)
                 {
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <div>
-                            <strong>@category.Name</strong>
-                            <small class="text-muted">
-                                @category.Description
-                            </small>
-                        </div>
+                    <div class="catalog-item">
 
                         <div>
-                            <button class="btn btn-sm btn-secondary">
+                            <div class="catalog-item-name">
+                                @category.Name
+                            </div>
+
+                            @if (!string.IsNullOrWhiteSpace(category.Description))
+                            {
+                                <div class="catalog-item-meta">
+                                    @category.Description
+                                </div>
+                            }
+                        </div>
+
+                        <div class="catalog-item-actions">
+
+                            <button type="button"
+                                    class="btn btn-secondary"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#editCategoryModal-@category.Id">
                                 Edit
                             </button>
 
                             <form asp-action="DeleteCategory"
                                   asp-route-id="@category.Id"
                                   method="post"
-                                  style="display:inline;">
+                                  style="display:inline">
+
                                 @Html.AntiForgeryToken()
 
                                 <button type="submit"
-                                        class="btn btn-sm btn-danger"
+                                        class="btn btn-delete"
                                         onclick="return confirm('Delete this category?');">
                                     Delete
                                 </button>
+
                             </form>
+
                         </div>
+
+                    </div>
+
+                    <div class="modal fade catalog-modal"
+                         id="editCategoryModal-@category.Id"
+                         tabindex="-1"
+                         aria-hidden="true">
+
+                        <div class="modal-dialog">
+
+                            <div class="modal-content">
+
+                                <div class="modal-header">
+
+                                    <h5 class="modal-title">
+                                        Edit Category
+                                    </h5>
+
+                                    <button type="button"
+                                            class="btn-close"
+                                            data-bs-dismiss="modal">
+                                    </button>
+
+                                </div>
+
+                                <form asp-action="EditCategory"
+                                      method="post">
+
+                                    @Html.AntiForgeryToken()
+
+                                    <div class="modal-body">
+
+                                        <input type="hidden"
+                                               name="Id"
+                                               value="@category.Id" />
+
+                                        <div class="mb-3">
+
+                                            <label class="form-label">
+                                                Name
+                                            </label>
+
+                                            <input name="Name"
+                                                   class="form-control"
+                                                   value="@category.Name"
+                                                   required />
+
+                                        </div>
+
+                                        <div class="mb-3">
+
+                                            <label class="form-label">
+                                                Description
+                                            </label>
+
+                                            <textarea name="Description"
+                                                      class="form-control">@category.Description</textarea>
+
+                                        </div>
+
+                                    </div>
+
+                                    <div class="modal-footer">
+
+                                        <button type="button"
+                                                class="btn btn-secondary"
+                                                data-bs-dismiss="modal">
+                                            Cancel
+                                        </button>
+
+                                        <button type="submit"
+                                                class="btn btn-primary">
+                                            Save Changes
+                                        </button>
+
+                                    </div>
+
+                                </form>
+
+                            </div>
+
+                        </div>
+
                     </div>
                 }
 
             </div>
         </div>
-    </div>
 
-
-    <!-- Brands -->
-    <div class="col-md-6 mb-4">
-        <div class="card">
-            <div class="card-header">
-                <h4>Brands</h4>
+        <div class="catalog-panel">
+            <div class="catalog-panel-header">
+                <h2>Brands</h2>
             </div>
 
-            <div class="card-body">
+            <div class="catalog-panel-body">
 
-                <form asp-action="CreateBrand" method="post" class="mb-4">
+                <form asp-action="CreateBrand"
+                      method="post"
+                      class="catalog-form">
+
                     @Html.AntiForgeryToken()
 
-                    <div class="input-group">
+                    <div class="catalog-form-row">
+
                         <input name="Name"
                                class="form-control"
                                placeholder="Brand name"
@@ -100,53 +219,137 @@
                                 class="btn btn-primary">
                             Add
                         </button>
+
                     </div>
+
                 </form>
 
                 @foreach (var brand in brands)
                 {
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <strong>@brand.Name</strong>
+                    <div class="catalog-item">
 
-                        <div>
-                            <button class="btn btn-sm btn-secondary">
+                        <div class="catalog-item-name">
+                            @brand.Name
+                        </div>
+
+                        <div class="catalog-item-actions">
+
+                            <button type="button"
+                                    class="btn btn-secondary"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#editBrandModal-@brand.Id">
                                 Edit
                             </button>
 
                             <form asp-action="DeleteBrand"
                                   asp-route-id="@brand.Id"
                                   method="post"
-                                  style="display:inline;">
+                                  style="display:inline">
+
                                 @Html.AntiForgeryToken()
 
                                 <button type="submit"
-                                        class="btn btn-sm btn-danger"
+                                        class="btn btn-delete"
                                         onclick="return confirm('Delete this brand?');">
                                     Delete
                                 </button>
+
                             </form>
+
                         </div>
+
+                    </div>
+
+                    <div class="modal fade catalog-modal"
+                         id="editBrandModal-@brand.Id"
+                         tabindex="-1"
+                         aria-hidden="true">
+
+                        <div class="modal-dialog">
+
+                            <div class="modal-content">
+
+                                <div class="modal-header">
+
+                                    <h5 class="modal-title">
+                                        Edit Brand
+                                    </h5>
+
+                                    <button type="button"
+                                            class="btn-close"
+                                            data-bs-dismiss="modal">
+                                    </button>
+
+                                </div>
+
+                                <form asp-action="EditBrand"
+                                      method="post">
+
+                                    @Html.AntiForgeryToken()
+
+                                    <div class="modal-body">
+
+                                        <input type="hidden"
+                                               name="Id"
+                                               value="@brand.Id" />
+
+                                        <div class="mb-3">
+
+                                            <label class="form-label">
+                                                Name
+                                            </label>
+
+                                            <input name="Name"
+                                                   class="form-control"
+                                                   value="@brand.Name"
+                                                   required />
+
+                                        </div>
+
+                                    </div>
+
+                                    <div class="modal-footer">
+
+                                        <button type="button"
+                                                class="btn btn-secondary"
+                                                data-bs-dismiss="modal">
+                                            Cancel
+                                        </button>
+
+                                        <button type="submit"
+                                                class="btn btn-primary">
+                                            Save Changes
+                                        </button>
+
+                                    </div>
+
+                                </form>
+
+                            </div>
+
+                        </div>
+
                     </div>
                 }
 
             </div>
         </div>
-    </div>
 
-
-    <!-- Suppliers -->
-    <div class="col-md-6 mb-4">
-        <div class="card">
-            <div class="card-header">
-                <h4>Suppliers</h4>
+        <div class="catalog-panel">
+            <div class="catalog-panel-header">
+                <h2>Suppliers</h2>
             </div>
 
-            <div class="card-body">
+            <div class="catalog-panel-body">
 
-                <form asp-action="CreateSupplier" method="post" class="mb-4">
+                <form asp-action="CreateSupplier"
+                      method="post"
+                      class="catalog-form">
+
                     @Html.AntiForgeryToken()
 
-                    <div class="input-group">
+                    <div class="catalog-form-row">
+
                         <input name="Name"
                                class="form-control"
                                placeholder="Supplier name"
@@ -161,58 +364,159 @@
                                 class="btn btn-primary">
                             Add
                         </button>
+
                     </div>
+
                 </form>
 
                 @foreach (var supplier in suppliers)
                 {
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <div>
-                            <strong>@supplier.Name</strong>
-                            <small class="text-muted">
-                                (@supplier.Country)
-                            </small>
-                        </div>
+                    <div class="catalog-item">
 
                         <div>
-                            <button class="btn btn-sm btn-secondary">
+                            <div class="catalog-item-name">
+                                @supplier.Name
+                            </div>
+
+                            @if (!string.IsNullOrWhiteSpace(supplier.Country))
+                            {
+                                <div class="catalog-item-meta">
+                                    @supplier.Country
+                                </div>
+                            }
+                        </div>
+
+                        <div class="catalog-item-actions">
+
+                            <button type="button"
+                                    class="btn btn-secondary"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#editSupplierModal-@supplier.Id">
                                 Edit
                             </button>
 
                             <form asp-action="DeleteSupplier"
                                   asp-route-id="@supplier.Id"
                                   method="post"
-                                  style="display:inline;">
+                                  style="display:inline">
+
                                 @Html.AntiForgeryToken()
 
                                 <button type="submit"
-                                        class="btn btn-sm btn-danger"
+                                        class="btn btn-delete"
                                         onclick="return confirm('Delete this supplier?');">
                                     Delete
                                 </button>
+
                             </form>
+
                         </div>
+
+                    </div>
+
+                    <div class="modal fade catalog-modal"
+                         id="editSupplierModal-@supplier.Id"
+                         tabindex="-1"
+                         aria-hidden="true">
+
+                        <div class="modal-dialog">
+
+                            <div class="modal-content">
+
+                                <div class="modal-header">
+
+                                    <h5 class="modal-title">
+                                        Edit Supplier
+                                    </h5>
+
+                                    <button type="button"
+                                            class="btn-close"
+                                            data-bs-dismiss="modal">
+                                    </button>
+
+                                </div>
+
+                                <form asp-action="EditSupplier"
+                                      method="post">
+
+                                    @Html.AntiForgeryToken()
+
+                                    <div class="modal-body">
+
+                                        <input type="hidden"
+                                               name="Id"
+                                               value="@supplier.Id" />
+
+                                        <div class="mb-3">
+
+                                            <label class="form-label">
+                                                Name
+                                            </label>
+
+                                            <input name="Name"
+                                                   class="form-control"
+                                                   value="@supplier.Name"
+                                                   required />
+
+                                        </div>
+
+                                        <div class="mb-3">
+
+                                            <label class="form-label">
+                                                Country
+                                            </label>
+
+                                            <input name="Country"
+                                                   class="form-control"
+                                                   value="@supplier.Country"
+                                                   required />
+
+                                        </div>
+
+                                    </div>
+
+                                    <div class="modal-footer">
+
+                                        <button type="button"
+                                                class="btn btn-secondary"
+                                                data-bs-dismiss="modal">
+                                            Cancel
+                                        </button>
+
+                                        <button type="submit"
+                                                class="btn btn-primary">
+                                            Save Changes
+                                        </button>
+
+                                    </div>
+
+                                </form>
+
+                            </div>
+
+                        </div>
+
                     </div>
                 }
 
             </div>
         </div>
-    </div>
 
-
-    <!-- Tags -->
-    <div class="col-md-6 mb-4">
-        <div class="card">
-            <div class="card-header">
-                <h4>Tags</h4>
+        <div class="catalog-panel">
+            <div class="catalog-panel-header">
+                <h2>Tags</h2>
             </div>
 
-            <div class="card-body">
+            <div class="catalog-panel-body">
 
-                <form asp-action="CreateTag" method="post" class="mb-4">
+                <form asp-action="CreateTag"
+                      method="post"
+                      class="catalog-form">
+
                     @Html.AntiForgeryToken()
 
-                    <div class="input-group">
+                    <div class="catalog-form-row">
+
                         <input name="Name"
                                class="form-control"
                                placeholder="Tag name"
@@ -222,37 +526,121 @@
                                 class="btn btn-primary">
                             Add
                         </button>
+
                     </div>
+
                 </form>
 
                 @foreach (var tag in tags)
                 {
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <strong>@tag.Name</strong>
+                    <div class="catalog-item">
 
-                        <div>
-                            <button class="btn btn-sm btn-secondary">
+                        <div class="catalog-item-name">
+                            @tag.Name
+                        </div>
+
+                        <div class="catalog-item-actions">
+
+                            <button type="button"
+                                    class="btn btn-secondary"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#editTagModal-@tag.Id">
                                 Edit
                             </button>
 
                             <form asp-action="DeleteTag"
                                   asp-route-id="@tag.Id"
                                   method="post"
-                                  style="display:inline;">
+                                  style="display:inline">
+
                                 @Html.AntiForgeryToken()
 
                                 <button type="submit"
-                                        class="btn btn-sm btn-danger"
+                                        class="btn btn-delete"
                                         onclick="return confirm('Delete this tag?');">
                                     Delete
                                 </button>
+
                             </form>
+
                         </div>
+
+                    </div>
+
+                    <div class="modal fade catalog-modal"
+                         id="editTagModal-@tag.Id"
+                         tabindex="-1"
+                         aria-hidden="true">
+
+                        <div class="modal-dialog">
+
+                            <div class="modal-content">
+
+                                <div class="modal-header">
+
+                                    <h5 class="modal-title">
+                                        Edit Tag
+                                    </h5>
+
+                                    <button type="button"
+                                            class="btn-close"
+                                            data-bs-dismiss="modal">
+                                    </button>
+
+                                </div>
+
+                                <form asp-action="EditTag"
+                                      method="post">
+
+                                    @Html.AntiForgeryToken()
+
+                                    <div class="modal-body">
+
+                                        <input type="hidden"
+                                               name="Id"
+                                               value="@tag.Id" />
+
+                                        <div class="mb-3">
+
+                                            <label class="form-label">
+                                                Name
+                                            </label>
+
+                                            <input name="Name"
+                                                   class="form-control"
+                                                   value="@tag.Name"
+                                                   required />
+
+                                        </div>
+
+                                    </div>
+
+                                    <div class="modal-footer">
+
+                                        <button type="button"
+                                                class="btn btn-secondary"
+                                                data-bs-dismiss="modal">
+                                            Cancel
+                                        </button>
+
+                                        <button type="submit"
+                                                class="btn btn-primary">
+                                            Save Changes
+                                        </button>
+
+                                    </div>
+
+                                </form>
+
+                            </div>
+
+                        </div>
+
                     </div>
                 }
 
             </div>
         </div>
-    </div>
 
+    </div>
 </div>
