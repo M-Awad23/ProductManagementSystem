@@ -672,4 +672,39 @@ public class ProductController : Controller
             success = true
         });
     }
+
+    public async Task<IActionResult> DownloadReportPdf(
+    string? search,
+    string? sortOrder,
+    int? categoryId,
+    int? brandId,
+    int? supplierId,
+    decimal? minPrice,
+    decimal? maxPrice,
+    int? minQuantity,
+    int? maxQuantity)
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        var products = await _productService.GetProductsAsync(
+            userId,
+            search,
+            sortOrder,
+            categoryId,
+            brandId,
+            supplierId,
+            minPrice,
+            maxPrice,
+            minQuantity,
+            maxQuantity,
+            1,
+            int.MaxValue);
+
+        var pdf = _pdfService.GenerateProductsPdf(products);
+
+        return File(
+            pdf,
+            "application/pdf",
+            "Products-Report.pdf");
+    }
 }
