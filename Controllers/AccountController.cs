@@ -149,9 +149,7 @@ namespace ProductManagementSystem.Controllers
                 return Unauthorized();
             }
 
-            var result = await _userService.UploadProfilePhotoAsync(
-                userId,
-                photo);
+            var result = await _userService.UploadProfilePhotoAsync(userId, photo);
 
             if (!result.Success)
             {
