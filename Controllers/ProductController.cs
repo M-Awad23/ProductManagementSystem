@@ -40,10 +40,12 @@ public class ProductController : Controller
 
     private void LoadProductFormData()
     {
-        ViewBag.Categories = _categoryService.GetAllCategories();
-        ViewBag.Brands = _brandService.GetAllBrands();
-        ViewBag.Suppliers = _supplierService.GetAllSuppliers();
-        ViewBag.Tags = _tagService.GetAllTags();
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        ViewBag.Categories = _categoryService.GetAllCategories(userId);
+        ViewBag.Brands = _brandService.GetAllBrands(userId);
+        ViewBag.Suppliers = _supplierService.GetAllSuppliers(userId);
+        ViewBag.Tags = _tagService.GetAllTags(userId);
     }
 
     public async Task<IActionResult> Index(
@@ -91,9 +93,9 @@ public class ProductController : Controller
         ViewBag.TotalPages = (int)Math.Ceiling(
             totalProducts / (double)pageSize);
 
-        ViewBag.Categories = _categoryService.GetAllCategories();
-        ViewBag.Brands = _brandService.GetAllBrands();
-        ViewBag.Suppliers = _supplierService.GetAllSuppliers();
+        ViewBag.Categories = _categoryService.GetAllCategories(userId);
+        ViewBag.Brands = _brandService.GetAllBrands(userId);
+        ViewBag.Suppliers = _supplierService.GetAllSuppliers(userId);
 
         if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
         {
