@@ -185,9 +185,16 @@ function updateProduct(event) {
 
     const form = document.getElementById("productForm");
 
-    fetch("/Product/Edit", {
+    const formData = new FormData(form);
+    const idInput = form.querySelector('input[name="Id"]');
+
+    if (idInput) {
+        formData.set("id", idInput.value);
+    }
+
+    fetch("/Product/Edit?id=" + encodeURIComponent(idInput ? idInput.value : ""), {
         method: "POST",
-        body: new FormData(form)
+        body: formData
     })
         .then(response => {
             if (!response.ok) {
