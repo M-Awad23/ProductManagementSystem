@@ -576,6 +576,8 @@ public class ProductController : Controller
             });
         }
 
+        ModelState.Clear();
+
         var extension =
             Path.GetExtension(image.FileName)
                 .ToLowerInvariant();
