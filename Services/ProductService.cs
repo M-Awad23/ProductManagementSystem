@@ -168,19 +168,37 @@ namespace ProductManagementSystem.Services
             await _productRepository.UpdateAsync(product);
         }
 
-        public async Task DeleteAsync(int id, string userId)
+        public async Task<bool> DeleteAsync(int id, string userId)
         {
+            var product = await _productRepository.GetByIdAsync(id, userId);
+
+            if (product == null)
+                return false;
+
             await _productRepository.DeleteAsync(id, userId);
+            return true;
         }
 
-        public async Task RestoreAsync(int id, string userId)
+        public async Task<bool> RestoreAsync(int id, string userId)
         {
+            var products = await _productRepository.GetDeletedProductsAsync(userId);
+
+            if (!products.Any(p => p.Id == id))
+                return false;
+
             await _productRepository.RestoreAsync(id, userId);
+            return true;
         }
 
-        public async Task PermanentDeleteAsync(int id, string userId)
+        public async Task<bool> PermanentDeleteAsync(int id, string userId)
         {
+            var products = await _productRepository.GetDeletedProductsAsync(userId);
+
+            if (!products.Any(p => p.Id == id))
+                return false;
+
             await _productRepository.PermanentDeleteAsync(id, userId);
+            return true;
         }
 
         private string? ValidateCatalogOwnership(Product product, string userId)
