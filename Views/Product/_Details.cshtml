@@ -4,7 +4,7 @@
     @if (Model.ProductImages.Any())
 {
     <div class="product-images">
-            @foreach (var image in Model.ProductImages)
+            @foreach (var image in Model.ProductImages.OrderByDescending(i => i.IsPrimary))
             {
                 <div class="product-image-item">
                     <button type="button"

@@ -104,6 +104,7 @@
 
 });
 
+
 function createProduct(event) {
     event.preventDefault();
 
@@ -123,29 +124,33 @@ function createProduct(event) {
             const text = await response.text();
 
             if (!response.ok) {
-<<<<<<< HEAD
-                console.error("Create failed:", response.status, text);
-                throw new Error(
-                    "Create failed: " + response.status + "\n" + text
-                );
-=======
                 let message = "Unable to create the product.";
 
                 try {
                     const error = JSON.parse(text);
                     message = error.message || message;
                 } catch {
-                    // Keep the generic message if the server did not return JSON.
+                    if (text) {
+                        message = text;
+                    }
                 }
 
+                console.error(
+                    "Create failed:",
+                    response.status,
+                    text
+                );
+
                 throw new Error(message);
->>>>>>> 367b676505454abaf79f97f60fe4853b08c0038c
             }
 
             return text;
         })
         .then(html => {
-            document.getElementById("productList").innerHTML = html;
+            document.getElementById(
+                "productList"
+            ).innerHTML = html;
+
             document.getElementById("modal").innerHTML = "";
         })
         .catch(error => {
@@ -154,19 +159,32 @@ function createProduct(event) {
         });
 }
 
+
 function validateProductImages(form) {
-    const input = form.querySelector('input[name="images"]');
+
+    const input = form.querySelector(
+        'input[name="images"]'
+    );
 
     if (!input || !input.files) {
         return null;
     }
 
-    const allowedExtensions = [".jpg", ".jpeg", ".png", ".gif"];
+    const allowedExtensions = [
+        ".jpg",
+        ".jpeg",
+        ".png",
+        ".gif"
+    ];
+
     const maxSize = 5 * 1024 * 1024;
 
     for (const file of input.files) {
+
         const extension = file.name
-            .substring(file.name.lastIndexOf("."))
+            .substring(
+                file.name.lastIndexOf(".")
+            )
             .toLowerCase();
 
         if (!allowedExtensions.includes(extension)) {
@@ -181,12 +199,16 @@ function validateProductImages(form) {
     return null;
 }
 
+
 function showDetails(id) {
+
     fetch("/Product/Details?id=" + id)
         .then(response => {
+
             if (!response.ok) {
                 throw new Error(
-                    "Failed to load details: " + response.status
+                    "Failed to load details: " +
+                    response.status
                 );
             }
 
@@ -200,9 +222,12 @@ function showDetails(id) {
         });
 }
 
+
 function editProduct(id) {
+
     fetch("/Product/Edit?id=" + id)
         .then(response => {
+
             if (!response.ok) {
                 throw new Error(
                     "Failed to load edit form: " +
@@ -227,6 +252,7 @@ function editProduct(id) {
         });
 }
 
+
 function updateProduct(event) {
     event.preventDefault();
 
@@ -239,27 +265,47 @@ function updateProduct(event) {
     }
 
     const formData = new FormData(form);
-    const idInput = form.querySelector('input[name="Id"]');
+
+    const idInput = form.querySelector(
+        'input[name="Id"]'
+    );
 
     if (idInput) {
-        formData.set("id", idInput.value);
+        formData.set(
+            "id",
+            idInput.value
+        );
     }
 
-    fetch("/Product/Edit?id=" + encodeURIComponent(idInput ? idInput.value : ""), {
-        method: "POST",
-        body: formData
-    })
+    fetch(
+        "/Product/Edit?id=" +
+        encodeURIComponent(
+            idInput ? idInput.value : ""
+        ),
+        {
+            method: "POST",
+            body: formData
+        }
+    )
         .then(async response => {
+
             const text = await response.text();
 
             if (!response.ok) {
-                let message = "Unable to update the product.";
+
+                let message =
+                    "Unable to update the product.";
 
                 try {
                     const error = JSON.parse(text);
-                    message = error.message || message;
-                } catch {
-                    // Keep the generic message if the server did not return JSON.
+                    message =
+                        error.message ||
+                        message;
+                }
+                catch {
+                    if (text) {
+                        message = text;
+                    }
                 }
 
                 throw new Error(message);
@@ -268,17 +314,21 @@ function updateProduct(event) {
             return text;
         })
         .then(html => {
+
             document.getElementById(
                 "productList"
             ).innerHTML = html;
 
-            document.getElementById("modal").innerHTML = "";
+            document.getElementById(
+                "modal"
+            ).innerHTML = "";
         })
         .catch(error => {
             console.error(error);
             alert(error.message);
         });
 }
+
 
 function deleteProduct(id) {
 
@@ -313,11 +363,6 @@ function deleteProduct(id) {
     })
         .then(response => {
 
-            console.log(
-                "Delete status:",
-                response.status
-            );
-
             if (!response.ok) {
                 throw new Error(
                     "Delete failed: " +
@@ -328,25 +373,33 @@ function deleteProduct(id) {
             return response.text();
         })
         .then(html => {
+
             document.getElementById(
                 "productList"
             ).innerHTML = html;
         })
         .catch(error => {
+
             console.error(error);
+
             alert(
                 "Delete failed. Check the browser console."
             );
         });
 }
 
+
 function closeModal() {
-    const modal = document.getElementById("modal");
+
+    const modal =
+        document.getElementById("modal");
 
     if (modal) {
         modal.innerHTML = "";
     }
 }
+
+
 function setPrimaryImage(id) {
 
     const token = document.querySelector(
@@ -354,7 +407,9 @@ function setPrimaryImage(id) {
     );
 
     if (!token) {
-        console.error("Anti-forgery token not found.");
+        console.error(
+            "Anti-forgery token not found."
+        );
         return;
     }
 
@@ -371,6 +426,7 @@ function setPrimaryImage(id) {
             encodeURIComponent(token.value)
     })
         .then(response => {
+
             if (!response.ok) {
                 throw new Error(
                     "Failed to set primary image: " +
@@ -381,9 +437,13 @@ function setPrimaryImage(id) {
             return response.json();
         })
         .then(result => {
+
             if (result.success) {
+
                 const productDetails =
-                    document.querySelector(".product-details");
+                    document.querySelector(
+                        ".product-details"
+                    );
 
                 const productId =
                     productDetails
@@ -391,7 +451,10 @@ function setPrimaryImage(id) {
                             ".retro-panel-header p"
                         )
                         .textContent
-                        .replace("PRODUCT #", "");
+                        .replace(
+                            "PRODUCT #",
+                            ""
+                        );
 
                 showDetails(productId);
             }
@@ -401,9 +464,13 @@ function setPrimaryImage(id) {
         });
 }
 
+
 function replaceProductImage(id, input) {
 
-    if (!input.files || input.files.length === 0) {
+    if (
+        !input.files ||
+        input.files.length === 0
+    ) {
         return;
     }
 
@@ -412,14 +479,24 @@ function replaceProductImage(id, input) {
     );
 
     if (!token) {
-        console.error("Anti-forgery token not found.");
+        console.error(
+            "Anti-forgery token not found."
+        );
         return;
     }
 
     const formData = new FormData();
 
-    formData.append("id", id);
-    formData.append("image", input.files[0]);
+    formData.append(
+        "id",
+        id
+    );
+
+    formData.append(
+        "image",
+        input.files[0]
+    );
+
     formData.append(
         "__RequestVerificationToken",
         token.value
@@ -429,38 +506,67 @@ function replaceProductImage(id, input) {
         method: "POST",
         body: formData
     })
-        .then(response => {
+        .then(async response => {
+
+            const text = await response.text();
+
             if (!response.ok) {
-                throw new Error(
-                    "Image replacement failed: " +
-                    response.status
-                );
+
+                let message =
+                    "Image replacement failed.";
+
+                try {
+                    const error =
+                        JSON.parse(text);
+
+                    message =
+                        error.message ||
+                        message;
+                }
+                catch {
+                    if (text) {
+                        message = text;
+                    }
+                }
+
+                throw new Error(message);
             }
 
-            return response.json();
+            return JSON.parse(text);
         })
         .then(result => {
+
             if (result.success) {
+
                 const productId =
-                    document.querySelector(
-                        ".product-details"
-                    )
-                    .querySelector(
-                        ".retro-panel-header p"
-                    )
-                    .textContent
-                    .replace("PRODUCT #", "");
+                    document
+                        .querySelector(
+                            ".product-details"
+                        )
+                        .querySelector(
+                            ".retro-panel-header p"
+                        )
+                        .textContent
+                        .replace(
+                            "PRODUCT #",
+                            ""
+                        );
 
                 showDetails(productId);
             }
         })
         .catch(error => {
             console.error(error);
+            alert(error.message);
         });
 }
+
+
 function deleteProductImage(id) {
 
-    if (!confirm("Are you sure you want to delete this image?")) {
+    if (!confirm(
+        "Are you sure you want to delete this image?"
+    )) {
         return;
     }
 
@@ -469,7 +575,9 @@ function deleteProductImage(id) {
     );
 
     if (!token) {
-        console.error("Anti-forgery token not found.");
+        console.error(
+            "Anti-forgery token not found."
+        );
         return;
     }
 
@@ -485,54 +593,95 @@ function deleteProductImage(id) {
             "&__RequestVerificationToken=" +
             encodeURIComponent(token.value)
     })
-        .then(response => {
+        .then(async response => {
+
+            const text =
+                await response.text();
+
             if (!response.ok) {
-                throw new Error(
-                    "Image deletion failed: " +
-                    response.status
-                );
+
+                let message =
+                    "Image deletion failed.";
+
+                try {
+                    const error =
+                        JSON.parse(text);
+
+                    message =
+                        error.message ||
+                        message;
+                }
+                catch {
+                    if (text) {
+                        message = text;
+                    }
+                }
+
+                throw new Error(message);
             }
 
-            return response.json();
+            return JSON.parse(text);
         })
         .then(result => {
 
             if (result.success) {
-                showDetails(
-                    document.querySelector(
-                        ".product-details"
-                    ).querySelector(
-                        ".retro-panel-header p"
-                    ).textContent
-                        .replace("PRODUCT #", "")
-                );
+
+                const productId =
+                    document
+                        .querySelector(
+                            ".product-details"
+                        )
+                        .querySelector(
+                            ".retro-panel-header p"
+                        )
+                        .textContent
+                        .replace(
+                            "PRODUCT #",
+                            ""
+                        );
+
+                showDetails(productId);
             }
         })
         .catch(error => {
+
             console.error(error);
+            alert(error.message);
         });
 }
+
 
 function loadProductPage(page) {
 
     const searchForm =
-        document.getElementById("productSearchForm");
+        document.getElementById(
+            "productSearchForm"
+        );
 
     if (!searchForm) {
         return;
     }
 
-    const params = new URLSearchParams(
-        new FormData(searchForm)
+    const params =
+        new URLSearchParams(
+            new FormData(searchForm)
+        );
+
+    params.set(
+        "page",
+        page
     );
 
-    params.set("page", page);
-
-    fetch("/Product/Index?" + params.toString(), {
-        headers: {
-            "X-Requested-With": "XMLHttpRequest"
+    fetch(
+        "/Product/Index?" +
+        params.toString(),
+        {
+            headers: {
+                "X-Requested-With":
+                    "XMLHttpRequest"
+            }
         }
-    })
+    )
         .then(response => {
 
             if (!response.ok) {

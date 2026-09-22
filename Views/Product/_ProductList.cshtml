@@ -5,19 +5,24 @@
     @foreach (var product in Model)
     {
         <div class="product-card">
+
             @if (product.ProductImages.Any())
             {
-                <img src="@product.ProductImages.First().ImageUrl"
-                     class="product-image"
-                     alt="@product.Name" />
-            }
+                var primaryImage = product.ProductImages
+                    .FirstOrDefault(i => i.IsPrimary)
+                    ?? product.ProductImages.FirstOrDefault();
 
+                if (primaryImage != null)
+                {
+                    <img src="@primaryImage.ImageUrl"
+                         class="product-image"
+                         alt="@product.Name" />
+                }
+            }
 
             <div class="product-name">
                 @product.Name
             </div>
-
-          
 
             <div class="product-price">
                 $@product.Price
@@ -44,13 +49,10 @@
                     Delete
                 </button>
 
-                 
-
             </div>
 
         </div>
     }
-
 </div>
 
 @if (!Model.Any())
