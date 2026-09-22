@@ -343,12 +343,7 @@ function deleteProduct(id) {
         'input[name="__RequestVerificationToken"]'
     );
 
-    if (!token) {
-        console.error(
-            "Anti-forgery token not found."
-        );
-        return;
-    }
+   
 
     fetch("/Product/Delete", {
         method: "POST",
@@ -407,12 +402,7 @@ function setPrimaryImage(id) {
         'input[name="__RequestVerificationToken"]'
     );
 
-    if (!token) {
-        console.error(
-            "Anti-forgery token not found."
-        );
-        return;
-    }
+   
 
     fetch("/Product/SetPrimaryImage", {
         method: "POST",
@@ -479,12 +469,7 @@ function replaceProductImage(id, input) {
         'input[name="__RequestVerificationToken"]'
     );
 
-    if (!token) {
-        console.error(
-            "Anti-forgery token not found."
-        );
-        return;
-    }
+    
 
     const formData = new FormData();
 
@@ -575,12 +560,7 @@ function deleteProductImage(id) {
         'input[name="__RequestVerificationToken"]'
     );
 
-    if (!token) {
-        console.error(
-            "Anti-forgery token not found."
-        );
-        return;
-    }
+   
 
     fetch("/Product/DeleteImage", {
         method: "POST",
