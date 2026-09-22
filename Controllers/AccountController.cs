@@ -8,17 +8,7 @@ namespace ProductManagementSystem.Controllers
 {
     public class AccountController : Controller
     {
-
-        private static readonly string[] AllowedImageExtensions =
-{
-    ".jpg",
-    ".jpeg",
-    ".png",
-    ".gif"
-};
-
-        private const long MaxProfilePhotoSize = 5 * 1024 * 1024;
-        private readonly UserManager<User> _userManager;
+private readonly UserManager<User> _userManager;
         private readonly SignInManager<User> _signInManager;
         private readonly IUserService _userService;
 
@@ -156,102 +146,25 @@ namespace ProductManagementSystem.Controllers
 
             if (string.IsNullOrEmpty(userId))
             {
-                return Unauthorized();
+                return Unauthorized(new { success = false, message = "You are not logged in." });
+            }
+
+            var result = await _userService.UploadProfilePhotoAsync(userId, photo);
+
+            if (!result.Success)
+            {
+                return BadRequest(new { success = false, message = result.ErrorMessage });
             }
 
             var user = await _userService.GetUserByIdAsync(userId);
 
-            if (user == null)
-            {
-                return Unauthorized();
-            }
-
-            if (photo == null || photo.Length == 0)
-            {
-                return BadRequest(new
-                {
-                    success = false,
-                    message = "Please select an image."
-                });
-            }
-
-            var extension = Path.GetExtension(photo.FileName)
-                .ToLowerInvariant();
-
-            if (!AllowedImageExtensions.Contains(extension))
-            {
-                return BadRequest(new
-                {
-                    success = false,
-                    message = "Only JPG, JPEG, PNG, and GIF images are allowed."
-                });
-            }
-
-            if (photo.Length > MaxProfilePhotoSize)
-            {
-                return BadRequest(new
-                {
-                    success = false,
-                    message = "Profile photo must be 5 MB or smaller."
-                });
-            }
-
-            var uploadPath = Path.Combine(
-                Directory.GetCurrentDirectory(),
-                "wwwroot",
-                "uploads",
-                "profiles");
-
-            Directory.CreateDirectory(uploadPath);
-
-            if (!string.IsNullOrEmpty(user.ProfilePhotoUrl))
-            {
-                var oldFilePath = Path.Combine(
-                    Directory.GetCurrentDirectory(),
-                    "wwwroot",
-                    user.ProfilePhotoUrl
-                        .TrimStart('/')
-                        .Replace(
-                            "/",
-                            Path.DirectorySeparatorChar.ToString()));
-
-                if (System.IO.File.Exists(oldFilePath))
-                {
-                    System.IO.File.Delete(oldFilePath);
-                }
-            }
-
-            var fileName = $"{Guid.NewGuid()}{extension}";
-            var filePath = Path.Combine(uploadPath, fileName);
-
-            using var stream = new FileStream(
-                filePath,
-                FileMode.Create);
-
-            await photo.CopyToAsync(stream);
-
-            user.ProfilePhotoUrl = $"/uploads/profiles/{fileName}";
-
-            var result = await _userService.UpdateUserAsync(user);
-
-            if (!result.Succeeded)
-            {
-                return BadRequest(new
-                {
-                    success = false,
-                    message = string.Join(
-                        ", ",
-                        result.Errors.Select(e => e.Description)
-                    )
-                });
-            }
-
             return Json(new
             {
                 success = true,
-                photoUrl = user.ProfilePhotoUrl
+                photoUrl = user?.ProfilePhotoUrl
             });
         }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteProfilePhoto()
@@ -260,61 +173,17 @@ namespace ProductManagementSystem.Controllers
 
             if (string.IsNullOrEmpty(userId))
             {
-                return Unauthorized(new
-                {
-                    success = false,
-                    message = "You are not logged in."
-                });
+                return Unauthorized(new { success = false, message = "You are not logged in." });
             }
 
-            var user = await _userService.GetUserByIdAsync(userId);
-
-            if (user == null)
-            {
-                return Unauthorized(new
-                {
-                    success = false,
-                    message = "You are not logged in."
-                });
-            }
-
-            if (!string.IsNullOrEmpty(user.ProfilePhotoUrl))
-            {
-                var filePath = Path.Combine(
-                    Directory.GetCurrentDirectory(),
-                    "wwwroot",
-                    user.ProfilePhotoUrl
-                        .TrimStart('/')
-                        .Replace(
-                            "/",
-                            Path.DirectorySeparatorChar.ToString()));
-
-                if (System.IO.File.Exists(filePath))
-                {
-                    System.IO.File.Delete(filePath);
-                }
-
-                user.ProfilePhotoUrl = null;
-
-                var result = await _userService.UpdateUserAsync(user);
-
-                if (!result.Succeeded)
-                {
-                    return BadRequest(new
-                    {
-                        success = false,
-                        message = string.Join(
-                            ", ",
-                            result.Errors.Select(e => e.Description)
-                        )
-                    });
-                }
-            }
+            var deleted = await _userService.DeleteProfilePhotoAsync(userId);
 
             return Json(new
             {
-                success = true,
-                message = "Profile photo removed successfully."
+                success = deleted,
+                message = deleted
+                    ? "Profile photo removed successfully."
+                    : "Profile photo could not be removed."
             });
         }
 
