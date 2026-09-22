@@ -1,0 +1,258 @@
+﻿@using ProductManagementSystem.Models
+
+@{
+    ViewData["Title"] = "Catalog Management";
+
+    var categories = (IEnumerable<Category>)ViewBag.Categories;
+    var brands = (IEnumerable<Brand>)ViewBag.Brands;
+    var suppliers = (IEnumerable<Supplier>)ViewBag.Suppliers;
+    var tags = (IEnumerable<Tag>)ViewBag.Tags;
+}
+
+<h1>Catalog Management</h1>
+
+<div class="row">
+
+    <!-- Categories -->
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h4>Categories</h4>
+            </div>
+
+            <div class="card-body">
+
+                <form asp-action="CreateCategory" method="post" class="mb-4">
+                    @Html.AntiForgeryToken()
+
+                    <div class="input-group">
+                        <input name="Name"
+                               class="form-control"
+                               placeholder="Category name"
+                               required />
+
+                        <input name="Description"
+                               class="form-control"
+                               placeholder="Description" />
+
+                        <button type="submit"
+                                class="btn btn-primary">
+                            Add
+                        </button>
+                    </div>
+                </form>
+
+                @foreach (var category in categories)
+                {
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <div>
+                            <strong>@category.Name</strong>
+                            <small class="text-muted">
+                                @category.Description
+                            </small>
+                        </div>
+
+                        <div>
+                            <button class="btn btn-sm btn-secondary">
+                                Edit
+                            </button>
+
+                            <form asp-action="DeleteCategory"
+                                  asp-route-id="@category.Id"
+                                  method="post"
+                                  style="display:inline;">
+                                @Html.AntiForgeryToken()
+
+                                <button type="submit"
+                                        class="btn btn-sm btn-danger"
+                                        onclick="return confirm('Delete this category?');">
+                                    Delete
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                }
+
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Brands -->
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h4>Brands</h4>
+            </div>
+
+            <div class="card-body">
+
+                <form asp-action="CreateBrand" method="post" class="mb-4">
+                    @Html.AntiForgeryToken()
+
+                    <div class="input-group">
+                        <input name="Name"
+                               class="form-control"
+                               placeholder="Brand name"
+                               required />
+
+                        <button type="submit"
+                                class="btn btn-primary">
+                            Add
+                        </button>
+                    </div>
+                </form>
+
+                @foreach (var brand in brands)
+                {
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <strong>@brand.Name</strong>
+
+                        <div>
+                            <button class="btn btn-sm btn-secondary">
+                                Edit
+                            </button>
+
+                            <form asp-action="DeleteBrand"
+                                  asp-route-id="@brand.Id"
+                                  method="post"
+                                  style="display:inline;">
+                                @Html.AntiForgeryToken()
+
+                                <button type="submit"
+                                        class="btn btn-sm btn-danger"
+                                        onclick="return confirm('Delete this brand?');">
+                                    Delete
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                }
+
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Suppliers -->
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h4>Suppliers</h4>
+            </div>
+
+            <div class="card-body">
+
+                <form asp-action="CreateSupplier" method="post" class="mb-4">
+                    @Html.AntiForgeryToken()
+
+                    <div class="input-group">
+                        <input name="Name"
+                               class="form-control"
+                               placeholder="Supplier name"
+                               required />
+
+                        <input name="Country"
+                               class="form-control"
+                               placeholder="Country"
+                               required />
+
+                        <button type="submit"
+                                class="btn btn-primary">
+                            Add
+                        </button>
+                    </div>
+                </form>
+
+                @foreach (var supplier in suppliers)
+                {
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <div>
+                            <strong>@supplier.Name</strong>
+                            <small class="text-muted">
+                                (@supplier.Country)
+                            </small>
+                        </div>
+
+                        <div>
+                            <button class="btn btn-sm btn-secondary">
+                                Edit
+                            </button>
+
+                            <form asp-action="DeleteSupplier"
+                                  asp-route-id="@supplier.Id"
+                                  method="post"
+                                  style="display:inline;">
+                                @Html.AntiForgeryToken()
+
+                                <button type="submit"
+                                        class="btn btn-sm btn-danger"
+                                        onclick="return confirm('Delete this supplier?');">
+                                    Delete
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                }
+
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Tags -->
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h4>Tags</h4>
+            </div>
+
+            <div class="card-body">
+
+                <form asp-action="CreateTag" method="post" class="mb-4">
+                    @Html.AntiForgeryToken()
+
+                    <div class="input-group">
+                        <input name="Name"
+                               class="form-control"
+                               placeholder="Tag name"
+                               required />
+
+                        <button type="submit"
+                                class="btn btn-primary">
+                            Add
+                        </button>
+                    </div>
+                </form>
+
+                @foreach (var tag in tags)
+                {
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <strong>@tag.Name</strong>
+
+                        <div>
+                            <button class="btn btn-sm btn-secondary">
+                                Edit
+                            </button>
+
+                            <form asp-action="DeleteTag"
+                                  asp-route-id="@tag.Id"
+                                  method="post"
+                                  style="display:inline;">
+                                @Html.AntiForgeryToken()
+
+                                <button type="submit"
+                                        class="btn btn-sm btn-danger"
+                                        onclick="return confirm('Delete this tag?');">
+                                    Delete
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                }
+
+            </div>
+        </div>
+    </div>
+
+</div>
