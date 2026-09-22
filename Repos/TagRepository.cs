@@ -1,47 +1,28 @@
-﻿using ProductManagementSystem.Models;
+using ProductManagementSystem.Models;
 
 namespace ProductManagementSystem.Repos
 {
     public class TagRepository : ITagRepository
     {
         private readonly AppDbContext _context;
+        public TagRepository(AppDbContext context) => _context = context;
 
-        public TagRepository(AppDbContext context)
+        public IEnumerable<Tag> GetAllTags(string userId) => _context.Tags.Where(t => t.UserId == userId).ToList();
+        public Tag? GetTagById(int id, string userId) => _context.Tags.FirstOrDefault(t => t.Id == id && t.UserId == userId);
+        public void AddTag(Tag tag) { _context.Tags.Add(tag); _context.SaveChanges(); }
+        public void UpdateTag(Tag tag, string userId)
         {
-            _context = context;
-        }
-
-        public IEnumerable<Tag> GetAllTags()
-        {
-            return _context.Tags.ToList();
-        }
-
-        public Tag? GetTagById(int id)
-        {
-            return _context.Tags.Find(id);
-        }
-
-        public void AddTag(Tag tag)
-        {
-            _context.Tags.Add(tag);
+            var existing = GetTagById(tag.Id, userId);
+            if (existing == null) return;
+            existing.Name = tag.Name;
             _context.SaveChanges();
         }
-
-        public void UpdateTag(Tag tag)
+        public void DeleteTag(int id, string userId)
         {
-            _context.Tags.Update(tag);
+            var tag = GetTagById(id, userId);
+            if (tag == null) return;
+            _context.Tags.Remove(tag);
             _context.SaveChanges();
-        }
-
-        public void DeleteTag(int id)
-        {
-            var tag = _context.Tags.Find(id);
-
-            if (tag != null)
-            {
-                _context.Tags.Remove(tag);
-                _context.SaveChanges();
-            }
         }
     }
 }
