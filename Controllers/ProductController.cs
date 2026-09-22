@@ -274,16 +274,14 @@ public class ProductController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(int id)
     {
-        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
 
-        var product = await _productService.GetByIdAsync(id, userId);
+        var deleted = await _productService.DeleteAsync(id, userId);
 
-        if (product == null)
+        if (!deleted)
         {
             return NotFound();
         }
-
-        await _productService.DeleteAsync(id, userId);
 
         var products = await _productService.GetProductsAsync(
             userId,
@@ -315,35 +313,32 @@ public class ProductController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Restore(int id)
     {
-        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
 
-        var products = await _productService.GetDeletedProductsAsync(userId);
+        var restored = await _productService.RestoreAsync(id, userId);
 
-        if (!products.Any(p => p.Id == id))
+        if (!restored)
         {
             return NotFound();
         }
-
-        await _productService.RestoreAsync(id, userId);
 
         return RedirectToAction(nameof(Deleted));
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    public async Task<IActionResult> P    [HttpPost]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> PermanentDelete(int id)
     {
-        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
 
-        var products = await _productService.GetDeletedProductsAsync(userId);
-        var product = products.FirstOrDefault(p => p.Id == id);
+        var deleted = await _productService.PermanentDeleteAsync(id, userId);
 
-        if (product == null)
+        if (!deleted)
         {
             return NotFound();
         }
-
-        await _productService.PermanentDeleteAsync(id, userId);
 
         return RedirectToAction(nameof(Deleted));
     }
