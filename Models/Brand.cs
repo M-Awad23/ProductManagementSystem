@@ -6,7 +6,6 @@ namespace ProductManagementSystem.Models
         public string Name { get; set; }
         public string UserId { get; set; }
         public User User { get; set; }
-
         public ICollection<Product> Products { get; set; } = new List<Product>();
     }
 }
