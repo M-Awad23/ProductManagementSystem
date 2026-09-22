@@ -2,6 +2,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.VisualBasic;
 using ProductManagementSystem.Models;
+using ProductManagementSystem.Services;
+using System.Security.Claims;
 
 namespace ProductManagementSystem.Controllers
 {
@@ -19,13 +21,16 @@ namespace ProductManagementSystem.Controllers
         private const long MaxProfilePhotoSize = 5 * 1024 * 1024;
         private readonly UserManager<User> _userManager;
         private readonly SignInManager<User> _signInManager;
+        private readonly IUserService _userService;
 
         public AccountController(
             UserManager<User> userManager,
-            SignInManager<User> signInManager)
+            SignInManager<User> signInManager,
+            IUserService userService)
         {
             _userManager = userManager;
             _signInManager = signInManager;
+            _userService = userService;
         }
 
 
@@ -127,8 +132,21 @@ namespace ProductManagementSystem.Controllers
 
         public async Task<IActionResult> Profile()
         {
-            var user = await _userManager.GetUserAsync(User);
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
+            if (string.IsNullOrEmpty(userId))
+            {
+                return Unauthorized();
+            }
+
+            var user = await _userService.GetUserByIdAsync(userId);
+
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            return View(user);
             if (user == null)
             {
                 return NotFound();
@@ -141,8 +159,19 @@ namespace ProductManagementSystem.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> UploadProfilePhoto(IFormFile? photo)
         {
-            var user = await _userManager.GetUserAsync(User);
+            var result = await _userService.UpdateUserAsync(user);
 
+            if (!result.Succeeded)
+            {
+                return BadRequest(new
+                {
+                    success = false,
+                    message = string.Join(
+                        ", ",
+                        result.Errors.Select(e => e.Description)
+                    )
+                });
+            }
             if (user == null)
             {
                 return Unauthorized();
@@ -222,8 +251,19 @@ namespace ProductManagementSystem.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteProfilePhoto()
         {
-            var user = await _userManager.GetUserAsync(User);
+            var result = await _userService.UpdateUserAsync(user);
 
+            if (!result.Succeeded)
+            {
+                return BadRequest(new
+                {
+                    success = false,
+                    message = string.Join(
+                        ", ",
+                        result.Errors.Select(e => e.Description)
+                    )
+                });
+            }
             if (user == null)
             {
                 return Unauthorized(new
@@ -294,7 +334,18 @@ namespace ProductManagementSystem.Controllers
                 });
             }
 
-            var user = await _userManager.GetUserAsync(User);
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (string.IsNullOrEmpty(userId))
+            {
+                return Unauthorized(new
+                {
+                    success = false,
+                    message = "You are not logged in."
+                });
+            }
+
+            var user = await _userService.GetUserByIdAsync(userId);
 
             if (user == null)
             {
@@ -305,26 +356,9 @@ namespace ProductManagementSystem.Controllers
                 });
             }
 
-            var existingUser = await _userManager.FindByEmailAsync(model.NewEmail);
-
-            if (existingUser != null && existingUser.Id != user.Id)
-            {
-                return BadRequest(new
-                {
-                    success = false,
-                    message = "That email is already being used."
-                });
-            }
-
-            var token = await _userManager.GenerateChangeEmailTokenAsync(
+            var result = await _userService.ChangeEmailAsync(
                 user,
                 model.NewEmail
-            );
-
-            var result = await _userManager.ChangeEmailAsync(
-                user,
-                model.NewEmail,
-                token
             );
 
             if (!result.Succeeded)
@@ -335,23 +369,6 @@ namespace ProductManagementSystem.Controllers
                     message = string.Join(
                         ", ",
                         result.Errors.Select(e => e.Description)
-                    )
-                });
-            }
-
-            var usernameResult = await _userManager.SetUserNameAsync(
-                user,
-                model.NewEmail
-            );
-
-            if (!usernameResult.Succeeded)
-            {
-                return BadRequest(new
-                {
-                    success = false,
-                    message = string.Join(
-                        ", ",
-                        usernameResult.Errors.Select(e => e.Description)
                     )
                 });
             }
@@ -367,7 +384,6 @@ namespace ProductManagementSystem.Controllers
             });
         }
 
-
         [HttpGet]
         public IActionResult ChangePassword()
         {
@@ -379,7 +395,8 @@ namespace ProductManagementSystem.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ChangePassword(ChangePasswordViewModel model)
+        public async Task<IActionResult> ChangePassword(
+      ChangePasswordViewModel model)
         {
             if (!ModelState.IsValid)
             {
@@ -390,7 +407,18 @@ namespace ProductManagementSystem.Controllers
                 });
             }
 
-            var user = await _userManager.GetUserAsync(User);
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (string.IsNullOrEmpty(userId))
+            {
+                return Unauthorized(new
+                {
+                    success = false,
+                    message = "You are not logged in."
+                });
+            }
+
+            var user = await _userService.GetUserByIdAsync(userId);
 
             if (user == null)
             {
@@ -401,7 +429,7 @@ namespace ProductManagementSystem.Controllers
                 });
             }
 
-            var result = await _userManager.ChangePasswordAsync(
+            var result = await _userService.ChangePasswordAsync(
                 user,
                 model.CurrentPassword,
                 model.NewPassword
