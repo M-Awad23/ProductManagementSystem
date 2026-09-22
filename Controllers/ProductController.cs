@@ -347,16 +347,7 @@ public class ProductController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteImage(int id)
     {
-        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-        var image = _productImageService.GetProductImageById(
-            id,
-            userId);
-
-        if (image == null)
-        {
-            return NotFound();
-        }
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
 
         var deleted = await _productImageService.DeleteProductImageAsync(
             id,
