@@ -47,8 +47,8 @@ namespace ProductManagementSystem.Services
             List<int>? tagIds);
 
         Task UpdateAsync(Product product);
-        Task DeleteAsync(int id, string userId);
-        Task RestoreAsync(int id, string userId);
-        Task PermanentDeleteAsync(int id, string userId);
+        Task<bool> DeleteAsync(int id, string userId);
+        Task<bool> RestoreAsync(int id, string userId);
+        Task<bool> PermanentDeleteAsync(int id, string userId);
     }
 }
