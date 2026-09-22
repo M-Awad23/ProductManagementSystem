@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.VisualBasic;
 using ProductManagementSystem.Models;
 using ProductManagementSystem.Services;
 using System.Security.Claims;
@@ -147,31 +146,21 @@ namespace ProductManagementSystem.Controllers
             }
 
             return View(user);
-            if (user == null)
-            {
-                return NotFound();
-            }
-
-            return View(user);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> UploadProfilePhoto(IFormFile? photo)
         {
-            var result = await _userService.UpdateUserAsync(user);
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            if (!result.Succeeded)
+            if (string.IsNullOrEmpty(userId))
             {
-                return BadRequest(new
-                {
-                    success = false,
-                    message = string.Join(
-                        ", ",
-                        result.Errors.Select(e => e.Description)
-                    )
-                });
+                return Unauthorized();
             }
+
+            var user = await _userService.GetUserByIdAsync(userId);
+
             if (user == null)
             {
                 return Unauthorized();
@@ -185,17 +174,18 @@ namespace ProductManagementSystem.Controllers
                     message = "Please select an image."
                 });
             }
-            var extension = Path.GetExtension(photo.FileName).ToLowerInvariant();
+
+            var extension = Path.GetExtension(photo.FileName)
+                .ToLowerInvariant();
 
             if (!AllowedImageExtensions.Contains(extension))
             {
                 return BadRequest(new
                 {
                     success = false,
-                    message = "Only JPG, JPEG, and PNG images are allowed."
+                    message = "Only JPG, JPEG, PNG, and GIF images are allowed."
                 });
             }
-
 
             if (photo.Length > MaxProfilePhotoSize)
             {
@@ -205,6 +195,7 @@ namespace ProductManagementSystem.Controllers
                     message = "Profile photo must be 5 MB or smaller."
                 });
             }
+
             var uploadPath = Path.Combine(
                 Directory.GetCurrentDirectory(),
                 "wwwroot",
@@ -218,9 +209,11 @@ namespace ProductManagementSystem.Controllers
                 var oldFilePath = Path.Combine(
                     Directory.GetCurrentDirectory(),
                     "wwwroot",
-                    user.ProfilePhotoUrl.TrimStart('/').Replace(
-                        "/",
-                        Path.DirectorySeparatorChar.ToString()));
+                    user.ProfilePhotoUrl
+                        .TrimStart('/')
+                        .Replace(
+                            "/",
+                            Path.DirectorySeparatorChar.ToString()));
 
                 if (System.IO.File.Exists(oldFilePath))
                 {
@@ -239,18 +232,6 @@ namespace ProductManagementSystem.Controllers
 
             user.ProfilePhotoUrl = $"/uploads/profiles/{fileName}";
 
-            await _userManager.UpdateAsync(user);
-
-            return Json(new
-            {
-                success = true,
-                photoUrl = user.ProfilePhotoUrl
-            });
-        }
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteProfilePhoto()
-        {
             var result = await _userService.UpdateUserAsync(user);
 
             if (!result.Succeeded)
@@ -264,6 +245,30 @@ namespace ProductManagementSystem.Controllers
                     )
                 });
             }
+
+            return Json(new
+            {
+                success = true,
+                photoUrl = user.ProfilePhotoUrl
+            });
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteProfilePhoto()
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (string.IsNullOrEmpty(userId))
+            {
+                return Unauthorized(new
+                {
+                    success = false,
+                    message = "You are not logged in."
+                });
+            }
+
+            var user = await _userService.GetUserByIdAsync(userId);
+
             if (user == null)
             {
                 return Unauthorized(new
@@ -291,14 +296,17 @@ namespace ProductManagementSystem.Controllers
 
                 user.ProfilePhotoUrl = null;
 
-                var result = await _userManager.UpdateAsync(user);
+                var result = await _userService.UpdateUserAsync(user);
 
                 if (!result.Succeeded)
                 {
                     return BadRequest(new
                     {
                         success = false,
-                        message = "Failed to remove profile photo."
+                        message = string.Join(
+                            ", ",
+                            result.Errors.Select(e => e.Description)
+                        )
                     });
                 }
             }
