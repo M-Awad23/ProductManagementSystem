@@ -325,9 +325,8 @@ public class ProductController : Controller
         return RedirectToAction(nameof(Deleted));
     }
 
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> P    [HttpPost]
+  
+      [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> PermanentDelete(int id)
     {
