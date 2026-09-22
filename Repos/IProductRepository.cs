@@ -36,5 +36,7 @@ namespace ProductManagementSystem.Repositories
         Task DeleteAsync(int id, string userId);
         Task RestoreAsync(int id, string userId);
         Task PermanentDeleteAsync(int id, string userId);
+
+        Task<List<Product>> GetUserProductsAsync(string userId);
     }
 }
