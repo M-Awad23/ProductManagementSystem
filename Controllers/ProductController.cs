@@ -16,7 +16,6 @@ public class ProductController : Controller
     private readonly IBrandService _brandService;
     private readonly ISupplierService _supplierService;
     private readonly ITagService _tagService;
-    private readonly IProductTagService _productTagService;
 
     public ProductController(
         IProductImageService productImageService,
@@ -25,7 +24,6 @@ public class ProductController : Controller
         IBrandService brandService,
         ISupplierService supplierService,
         ITagService tagService,
-        IProductTagService productTagService,
         IPdfService pdfService)
     {
         _productImageService = productImageService;
@@ -34,22 +32,9 @@ public class ProductController : Controller
         _brandService = brandService;
         _supplierService = supplierService;
         _tagService = tagService;
-        _productTagService = productTagService;
         _pdfService = pdfService;
     }
 
-
-    private void ValidateCatalogOwnership(Product product, string userId)
-    {
-        if (product.CategoryId.HasValue && _categoryService.GetCategoryById(product.CategoryId.Value, userId) == null)
-            ModelState.AddModelError(nameof(Product.CategoryId), "Invalid category.");
-
-        if (product.BrandId.HasValue && _brandService.GetBrandById(product.BrandId.Value, userId) == null)
-            ModelState.AddModelError(nameof(Product.BrandId), "Invalid brand.");
-
-        if (product.SupplierId.HasValue && _supplierService.GetSupplierById(product.SupplierId.Value, userId) == null)
-            ModelState.AddModelError(nameof(Product.SupplierId), "Invalid supplier.");
-    }
 
     private void LoadProductFormData()
     {
@@ -133,45 +118,28 @@ public class ProductController : Controller
         List<IFormFile>? images,
         List<int>? tagIds)
     {
-        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-        product.UserId = userId;
-        product.CreatedAt = DateTime.Now;
-
         ModelState.Remove(nameof(Product.UserId));
         ModelState.Remove(nameof(Product.User));
         ModelState.Remove(nameof(Product.ProductTags));
         ModelState.Remove(nameof(Product.ProductImages));
-
-        ValidateCatalogOwnership(product, userId);
 
         if (!ModelState.IsValid)
         {
             return BadRequest(ModelState);
         }
 
-        await _productService.AddAsync(product);
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
 
-        if (tagIds != null && tagIds.Any())
-        {
-            _productTagService.AddProductTags(
-                product.Id,
-                tagIds,
-                userId);
-        }
-
-        var uploadResult = await _productImageService.AddProductImagesAsync(
-            product.Id,
+        var result = await _productService.CreateProductAsync(
+            product,
             userId,
-            images);
+            images,
+            tagIds);
 
-        if (!uploadResult.Success)
+        if (!result.Success)
         {
-            return BadRequest(new
-            {
-                success = false,
-                message = uploadResult.ErrorMessage
-            });
+            ModelState.AddModelError(string.Empty, result.ErrorMessage!);
+            return BadRequest(ModelState);
         }
 
         var products = await _productService.GetProductsAsync(
@@ -234,62 +202,36 @@ public class ProductController : Controller
         List<IFormFile>? images,
         List<int>? tagIds)
     {
-        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-        var existingProduct = await _productService.GetByIdAsync(
-            id,
-            userId);
-
-        if (existingProduct == null)
-        {
-            return NotFound();
-        }
-
-        product.UserId = userId;
-        product.CreatedAt = existingProduct.CreatedAt;
-
-        ModelState.Remove(nameof(Product.UserId));
-        ModelState.Remove(nameof(Product.User));
-
-        ValidateCatalogOwnership(product, userId);
-
         if (id != product.Id)
         {
             return BadRequest();
         }
+
+        ModelState.Remove(nameof(Product.UserId));
+        ModelState.Remove(nameof(Product.User));
 
         if (!ModelState.IsValid)
         {
             return BadRequest(ModelState);
         }
 
-        existingProduct.Name = product.Name;
-        existingProduct.Description = product.Description;
-        existingProduct.Price = product.Price;
-        existingProduct.Quantity = product.Quantity;
-        existingProduct.CategoryId = product.CategoryId;
-        existingProduct.BrandId = product.BrandId;
-        existingProduct.SupplierId = product.SupplierId;
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
 
-        await _productService.UpdateAsync(existingProduct);
-
-        _productTagService.ReplaceProductTags(
-            product.Id,
-            tagIds ?? new List<int>(),
-            userId);
-
-        var uploadResult = await _productImageService.AddProductImagesAsync(
-            product.Id,
+        var result = await _productService.UpdateProductAsync(
+            product,
             userId,
-            images);
+            images,
+            tagIds);
 
-        if (!uploadResult.Success)
+        if (!result.Success)
         {
-            return BadRequest(new
+            if (result.ErrorMessage == "Product not found.")
             {
-                success = false,
-                message = uploadResult.ErrorMessage
-            });
+                return NotFound();
+            }
+
+            ModelState.AddModelError(string.Empty, result.ErrorMessage!);
+            return BadRequest(ModelState);
         }
 
         var products = await _productService.GetProductsAsync(
