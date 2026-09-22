@@ -38,6 +38,19 @@ public class ProductController : Controller
         _pdfService = pdfService;
     }
 
+
+    private void ValidateCatalogOwnership(Product product, string userId)
+    {
+        if (product.CategoryId.HasValue && _categoryService.GetCategoryById(product.CategoryId.Value, userId) == null)
+            ModelState.AddModelError(nameof(Product.CategoryId), "Invalid category.");
+
+        if (product.BrandId.HasValue && _brandService.GetBrandById(product.BrandId.Value, userId) == null)
+            ModelState.AddModelError(nameof(Product.BrandId), "Invalid brand.");
+
+        if (product.SupplierId.HasValue && _supplierService.GetSupplierById(product.SupplierId.Value, userId) == null)
+            ModelState.AddModelError(nameof(Product.SupplierId), "Invalid supplier.");
+    }
+
     private void LoadProductFormData()
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -130,6 +143,8 @@ public class ProductController : Controller
         ModelState.Remove(nameof(Product.ProductTags));
         ModelState.Remove(nameof(Product.ProductImages));
 
+        ValidateCatalogOwnership(product, userId);
+
         if (!ModelState.IsValid)
         {
             return BadRequest(ModelState);
@@ -141,7 +156,8 @@ public class ProductController : Controller
         {
             _productTagService.AddProductTags(
                 product.Id,
-                tagIds);
+                tagIds,
+                userId);
         }
 
         var uploadResult = await _productImageService.AddProductImagesAsync(
@@ -235,6 +251,8 @@ public class ProductController : Controller
         ModelState.Remove(nameof(Product.UserId));
         ModelState.Remove(nameof(Product.User));
 
+        ValidateCatalogOwnership(product, userId);
+
         if (id != product.Id)
         {
             return BadRequest();
@@ -257,7 +275,8 @@ public class ProductController : Controller
 
         _productTagService.ReplaceProductTags(
             product.Id,
-            tagIds ?? new List<int>());
+            tagIds ?? new List<int>(),
+            userId);
 
         var uploadResult = await _productImageService.AddProductImagesAsync(
             product.Id,
