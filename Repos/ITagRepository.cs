@@ -1,14 +1,13 @@
-﻿using ProductManagementSystem.Models;
+using ProductManagementSystem.Models;
 
-public interface ITagRepository
+namespace ProductManagementSystem.Repos
 {
-    IEnumerable<Tag> GetAllTags();
-
-    Tag? GetTagById(int id);
-
-    void AddTag(Tag tag);
-
-    void UpdateTag(Tag tag);
-
-    void DeleteTag(int id);
+    public interface ITagRepository
+    {
+        IEnumerable<Tag> GetAllTags(string userId);
+        Tag? GetTagById(int id, string userId);
+        void AddTag(Tag tag);
+        void UpdateTag(Tag tag, string userId);
+        void DeleteTag(int id, string userId);
+    }
 }
