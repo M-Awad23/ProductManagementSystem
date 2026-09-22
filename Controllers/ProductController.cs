@@ -9,6 +9,7 @@ namespace ProductManagementSystem.Controllers;
 [Authorize]
 public class ProductController : Controller
 {
+<<<<<<< HEAD
     private readonly IPdfService _pdfService;
     private readonly IProductImageService _productImageService;
     private readonly IProductService _productService;
@@ -16,6 +17,17 @@ public class ProductController : Controller
     private readonly IBrandService _brandService;
     private readonly ISupplierService _supplierService;
     private readonly ITagService _tagService;
+=======
+
+	private readonly IPdfService _pdfService;
+	private readonly IProductImageService _productImageService;
+	private readonly IProductService _productService;
+	private readonly ICategoryService _categoryService;
+	private readonly IBrandService _brandService;
+	private readonly ISupplierService _supplierService;
+	private readonly ITagService _tagService;
+
+>>>>>>> 93905db3c400d3eb96297067c57aa400de7f2b71
     private readonly IProductTagService _productTagService;
 
     public ProductController(
@@ -128,12 +140,21 @@ public class ProductController : Controller
         ModelState.Remove(nameof(Product.ProductTags));
         ModelState.Remove(nameof(Product.ProductImages));
 
+<<<<<<< HEAD
         if (!ModelState.IsValid)
         {
             return BadRequest(ModelState);
         }
 
         await _productService.AddAsync(product);
+=======
+		if (!ModelState.IsValid)
+		{
+			return BadRequest(ModelState);
+		}
+
+		await _productService.AddAsync(product);
+>>>>>>> 93905db3c400d3eb96297067c57aa400de7f2b71
 
         if (tagIds != null && tagIds.Any())
         {
@@ -142,6 +163,7 @@ public class ProductController : Controller
                 tagIds);
         }
 
+<<<<<<< HEAD
         var uploadResult = await _productImageService.AddProductImagesAsync(
             product.Id,
             userId,
@@ -174,6 +196,73 @@ public class ProductController : Controller
     }
 
     public async Task<IActionResult> Details(int id)
+=======
+        var uploadResult = await _productImageService.AddProductImagesAsync(product.Id, userId, images);
+        if (!uploadResult.Success)
+        {
+            return BadRequest(new { success = false, message = uploadResult.ErrorMessage });
+        }
+
+		var products = await _productService.GetProductsAsync(
+			userId,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			1,
+			8);
+
+		return PartialView("_ProductList", products);
+	}
+
+	public async Task<IActionResult> Details(int id)
+	{
+		var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+		var product = await _productService.GetByIdAsync(
+			id,
+			userId);
+
+		if (product == null)
+		{
+			return NotFound();
+		}
+
+		return PartialView("_Details", product);
+	}
+
+	public async Task<IActionResult> Edit(int id)
+	{
+		var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+		var product = await _productService.GetByIdAsync(
+			id,
+			userId);
+
+		if (product == null)
+		{
+			return NotFound();
+		}
+
+		LoadProductFormData();
+
+		return PartialView("_ProductForm", product);
+	}
+
+	[HttpPost]
+	[ValidateAntiForgeryToken]
+    public async Task<IActionResult> Edit(
+    int id,
+    [Bind("Id,Name,Description,Price,Quantity,CategoryId,BrandId,SupplierId")]
+    Product product,
+    List<IFormFile>? images,
+    List<int>? tagIds)
+>>>>>>> 93905db3c400d3eb96297067c57aa400de7f2b71
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
@@ -254,6 +343,7 @@ public class ProductController : Controller
         await _productService.UpdateAsync(existingProduct);
 
         _productTagService.ReplaceProductTags(
+<<<<<<< HEAD
             product.Id,
             tagIds ?? new List<int>());
 
@@ -312,6 +402,15 @@ public class ProductController : Controller
     public async Task<IActionResult> Delete(int id)
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+=======
+    product.Id,
+    tagIds ?? new List<int>());
+        var uploadResult = await _productImageService.AddProductImagesAsync(product.Id, userId, images);
+        if (!uploadResult.Success)
+        {
+            return BadRequest(new { success = false, message = uploadResult.ErrorMessage });
+        }
+>>>>>>> 93905db3c400d3eb96297067c57aa400de7f2b71
 
         var product = await _productService.GetByIdAsync(id, userId);
 
@@ -400,9 +499,13 @@ public class ProductController : Controller
             return NotFound();
         }
 
+<<<<<<< HEAD
         var deleted = await _productImageService.DeleteProductImageAsync(
             id,
             userId);
+=======
+        var deleted = await _productImageService.DeleteProductImageAsync(id, userId);
+>>>>>>> 93905db3c400d3eb96297067c57aa400de7f2b71
 
         if (!deleted)
         {
@@ -417,9 +520,13 @@ public class ProductController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+<<<<<<< HEAD
     public async Task<IActionResult> ReplaceImage(
         int id,
         IFormFile? image)
+=======
+    public async Task<IActionResult> ReplaceImage(int id, IFormFile? image)
+>>>>>>> 93905db3c400d3eb96297067c57aa400de7f2b71
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
