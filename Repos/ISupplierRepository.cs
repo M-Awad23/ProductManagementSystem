@@ -1,5 +1,4 @@
 using ProductManagementSystem.Models;
-
 namespace ProductManagementSystem.Repos
 {
     public interface ISupplierRepository
