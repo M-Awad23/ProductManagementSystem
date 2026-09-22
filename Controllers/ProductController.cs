@@ -10,15 +10,7 @@ namespace ProductManagementSystem.Controllers;
 public class ProductController : Controller
 {
 
-	private static readonly string[] AllowedImageExtensions =
-{
-	".jpg",
-	".jpeg",
-	".png",
-	".gif"
-};
 
-	private const long MaxProductImageSize = 5 * 1024 * 1024;
 	private readonly IPdfService _pdfService;
 	private readonly IProductImageService _productImageService;
 	private readonly IProductService _productService;
@@ -195,7 +187,6 @@ public class ProductController : Controller
 				"uploads",
 				"products");
 
-			Directory.CreateDirectory(uploadPath);
 
 			foreach (var image in images)
 			{
@@ -227,7 +218,22 @@ public class ProductController : Controller
             }
 		}
 
-		var products = await _productService.GetProductsAsync(
+        var uploadResult =
+    await _productImageService.AddProductImagesAsync(
+        product.Id,
+        userId,
+        images);
+
+        if (!uploadResult.Success)
+        {
+            return BadRequest(new
+            {
+                success = false,
+                message = uploadResult.ErrorMessage
+            });
+        }
+
+        var products = await _productService.GetProductsAsync(
 			userId,
 			null,
 			null,
