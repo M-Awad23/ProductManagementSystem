@@ -13,26 +13,19 @@ namespace ProductManagementSystem.Services
         private readonly IWebHostEnvironment _environment;
         private readonly ILogger<ProductImageService> _logger;
 
-        public ProductImageService(
-            IProductImageRepository productImageRepository,
-            IWebHostEnvironment environment,
-            ILogger<ProductImageService> logger)
+        public ProductImageService(IProductImageRepository productImageRepository, IWebHostEnvironment environment, ILogger<ProductImageService> logger)
         {
             _productImageRepository = productImageRepository;
             _environment = environment;
             _logger = logger;
         }
 
-        public IEnumerable<ProductImage> GetAllProductImages() =>
-            _productImageRepository.GetAllProductImages();
+        public IEnumerable<ProductImage> GetAllProductImages() => _productImageRepository.GetAllProductImages();
 
         public ProductImage? GetProductImageById(int id, string userId) =>
             _productImageRepository.GetProductImageById(id, userId);
 
-        public async Task<(bool Success, string? ErrorMessage)> AddProductImagesAsync(
-            int productId,
-            string userId,
-            IEnumerable<IFormFile>? images)
+        public async Task<(bool Success, string? ErrorMessage)> AddProductImagesAsync(int productId, string userId, IEnumerable<IFormFile>? images)
         {
             if (images == null)
                 return (true, null);
@@ -41,11 +34,7 @@ namespace ProductManagementSystem.Services
             if (validationError != null)
                 return (false, validationError);
 
-            var uploadPath = Path.Combine(
-                _environment.WebRootPath,
-                "uploads",
-                "products");
-
+            var uploadPath = Path.Combine(_environment.WebRootPath, "uploads", "products");
             Directory.CreateDirectory(uploadPath);
 
             foreach (var image in images.Where(i => i != null && i.Length > 0))
@@ -65,22 +54,14 @@ namespace ProductManagementSystem.Services
                         ProductId = productId
                     });
 
-                    _logger.LogInformation(
-                        "Product image uploaded for ProductId {ProductId} by UserId {UserId}.",
-                        productId,
-                        userId);
+                    _logger.LogInformation("Product image uploaded for ProductId {ProductId} by UserId {UserId}.", productId, userId);
                 }
                 catch (Exception ex)
                 {
                     if (File.Exists(filePath))
                         File.Delete(filePath);
 
-                    _logger.LogError(
-                        ex,
-                        "Failed to upload product image for ProductId {ProductId} by UserId {UserId}.",
-                        productId,
-                        userId);
-
+                    _logger.LogError(ex, "Failed to upload product image for ProductId {ProductId} by UserId {UserId}.", productId, userId);
                     return (false, "The product image could not be uploaded.");
                 }
             }
@@ -88,10 +69,7 @@ namespace ProductManagementSystem.Services
             return (true, null);
         }
 
-        public async Task<(bool Success, string? ErrorMessage)> ReplaceProductImageAsync(
-            int imageId,
-            string userId,
-            IFormFile? image)
+        public async Task<(bool Success, string? ErrorMessage)> ReplaceProductImageAsync(int imageId, string userId, IFormFile? image)
         {
             var existingImage = _productImageRepository.GetProductImageById(imageId, userId);
 
@@ -105,11 +83,7 @@ namespace ProductManagementSystem.Services
             if (validationError != null)
                 return (false, validationError);
 
-            var uploadPath = Path.Combine(
-                _environment.WebRootPath,
-                "uploads",
-                "products");
-
+            var uploadPath = Path.Combine(_environment.WebRootPath, "uploads", "products");
             Directory.CreateDirectory(uploadPath);
 
             var extension = Path.GetExtension(image.FileName).ToLowerInvariant();
@@ -130,11 +104,7 @@ namespace ProductManagementSystem.Services
 
                 DeletePhysicalFile(oldImageUrl);
 
-                _logger.LogInformation(
-                    "Product image {ImageId} replaced by UserId {UserId}.",
-                    imageId,
-                    userId);
-
+                _logger.LogInformation("Product image {ImageId} replaced by UserId {UserId}.", imageId, userId);
                 return (true, null);
             }
             catch (Exception ex)
@@ -142,12 +112,7 @@ namespace ProductManagementSystem.Services
                 if (File.Exists(newFilePath))
                     File.Delete(newFilePath);
 
-                _logger.LogError(
-                    ex,
-                    "Failed to replace product image {ImageId} for UserId {UserId}.",
-                    imageId,
-                    userId);
-
+                _logger.LogError(ex, "Failed to replace product image {ImageId} for UserId {UserId}.", imageId, userId);
                 return (false, "The product image could not be replaced.");
             }
         }
@@ -160,16 +125,9 @@ namespace ProductManagementSystem.Services
                 return Task.FromResult(false);
 
             DeletePhysicalFile(image.ImageUrl);
+            _productImageRepository.DeleteProductImage(imageId, userId);
 
-            _productImageRepository.DeleteProductImage(
-                imageId,
-                userId);
-
-            _logger.LogInformation(
-                "Product image {ImageId} deleted by UserId {UserId}.",
-                imageId,
-                userId);
-
+            _logger.LogInformation("Product image {ImageId} deleted by UserId {UserId}.", imageId, userId);
             return Task.FromResult(true);
         }
 
@@ -180,15 +138,9 @@ namespace ProductManagementSystem.Services
             if (image == null)
                 return Task.FromResult(false);
 
-            _productImageRepository.SetPrimaryImage(
-                imageId,
-                userId);
+            _productImageRepository.SetPrimaryImage(imageId, userId);
 
-            _logger.LogInformation(
-                "Product image {ImageId} set as primary by UserId {UserId}.",
-                imageId,
-                userId);
-
+            _logger.LogInformation("Product image {ImageId} set as primary by UserId {UserId}.", imageId, userId);
             return Task.FromResult(true);
         }
 
@@ -197,11 +149,9 @@ namespace ProductManagementSystem.Services
             foreach (var image in images.Where(i => i != null && i.Length > 0))
             {
                 var error = ValidateImage(image);
-
                 if (error != null)
                     return error;
             }
-
             return null;
         }
 
@@ -210,14 +160,10 @@ namespace ProductManagementSystem.Services
             var extension = Path.GetExtension(image.FileName).ToLowerInvariant();
 
             if (!AllowedImageExtensions.Contains(extension))
-            {
                 return "Only JPG, JPEG, PNG, and GIF images are allowed.";
-            }
 
             if (image.Length > MaxProductImageSize)
-            {
                 return "Product images must be 5 MB or smaller.";
-            }
 
             return null;
         }
@@ -227,13 +173,8 @@ namespace ProductManagementSystem.Services
             if (string.IsNullOrWhiteSpace(imageUrl))
                 return;
 
-            var relativePath = imageUrl
-                .TrimStart('/')
-                .Replace("/", Path.DirectorySeparatorChar.ToString());
-
-            var filePath = Path.Combine(
-                _environment.WebRootPath,
-                relativePath);
+            var relativePath = imageUrl.TrimStart('/').Replace("/", Path.DirectorySeparatorChar.ToString());
+            var filePath = Path.Combine(_environment.WebRootPath, relativePath);
 
             if (File.Exists(filePath))
                 File.Delete(filePath);
