@@ -174,7 +174,8 @@ function validateProductImages(form) {
         ".jpg",
         ".jpeg",
         ".png",
-        ".gif"
+        ".gif",
+        ".webp"
     ];
 
     const maxSize = 5 * 1024 * 1024;
@@ -188,7 +189,7 @@ function validateProductImages(form) {
             .toLowerCase();
 
         if (!allowedExtensions.includes(extension)) {
-            return "Only JPG, JPEG, PNG, and GIF images are allowed.";
+            return "Only JPG, JPEG, PNG, WEBP, and GIF images are allowed.";
         }
 
         if (file.size > maxSize) {
