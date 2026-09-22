@@ -1,0 +1,105 @@
+[33mb39dcc9[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmaster[m[33m)[m fix
+[33m9d3507e[m Merge branch 'master' of https://github.com/M-Awad23/ProductManagementSystem
+[33m4153720[m add catalog
+[33m7978faf[m database backup file bak
+[33m6c6253a[m fixes
+[33m227af0d[m webp fix
+[33m4c2c1dc[m fixes
+[33mf0e6c33[m fix
+[33mb2a64a4[m Resolve merge conflict in products.js
+[33me5f03f9[m fixes
+[33m367b676[m Handle product image validation errors
+[33mae8cd20[m Send product id explicitly when updating
+[33m7c98c19[m Load product relationships for PDF generation
+[33m1dd28b2[m Finalize resolved merge files
+[33mb77f318[m Resolve merge conflicts
+[33m609880e[m fixes
+[33m93905db[m Fix user service refactor
+[33m5d8be04[m Fix user service refactor
+[33m83c16f7[m Fix product image service refactor
+[33mb855222[m Fix product image service refactor
+[33m839b180[m Fix profile photo service refactor
+[33mb55c191[m Fix product image service refactor
+[33mece1e5e[m fixes
+[33m22694e1[m Refactor account controller profile photo handling
+[33ma760a86[m Refactor product controller image handling
+[33m8fdba05[m Move profile photo file handling into user service
+[33mbfe8222[m Move profile photo operations into user service
+[33mf46475b[m Move product image file handling into service
+[33m878c81f[m Move product image operations into service layer
+[33m7b38045[m progress
+[33m808be0f[m fixes
+[33m521ff2a[m progress
+[33mfa7ab7e[m progress
+[33m5e9074b[m progress
+[33mc5aecec[m fixes
+[33m1562d5b[m Merge branch 'master' of https://github.com/M-Awad23/ProductManagementSystem
+[33mf0d8c9a[m Clear unrelated model state during image replacement
+[33md5ef909[m Fix product image replacement file input
+[33m1490c5d[m Fix product UserId validation for server-assigned ownership
+[33ma9aad6a[m Fix Create 400 validation with multipart product data
+[33m3de76ab[m Add full product PDF report endpoint
+[33mbc2ac6e[m Implement user product report retrieval
+[33m874e1bf[m Expose user product report retrieval
+[33ma80486f[m Load product report relationships and images
+[33mf867b76[m Expand PDF reports with product relationships and images
+[33m1c6b9cc[m Add full product PDF report operation
+[33m2ba1dc2[m Add deleted products navigation
+[33medf9427[m Add deleted products view
+[33mefb4333[m Add deleted products restore and permanent delete actions
+[33m997ea7d[m Implement soft delete service operations
+[33m6d16354[m Add soft delete service operations
+[33m95769db[m Implement soft delete restore and permanent delete
+[33m224fff2[m Add soft delete repository operations
+[33m4d8e5a6[m fixes
+[33m4dcd398[m fixes
+[33mf4a2a7a[m fixes
+[33m5ca7d9a[m fixes
+[33m02e542d[m fixed
+[33m2e656fa[m fixzes
+[33m2f374a4[m fixes
+[33m2ccb556[m progress
+[33mf350863[m progress
+[33m9b7af68[m progress
+[33mebf8283[m progress
+[33m64d6330[m fixes
+[33m0401f3e[m fixes, progress
+[33m0fa5e29[m fixed
+[33m9d01c26[m product image validation
+[33m67dfc2b[m Merge branch 'master' of https://github.com/M-Awad23/ProductManagementSystem
+[33mb8571d3[m fixes
+[33mc8d5842[m fixes
+[33m9d20e3e[m delete and validate profile photo
+[33m282bd7d[m final fix, append true to prevent loading old files from cache
+[33m35c3e74[m fixes
+[33m8e74f81[m pdf di
+[33md7cb4df[m pdf
+[33m192096d[m progress
+[33m1b384d4[m dashboard more
+[33m77fcec8[m dashboard
+[33m876d70d[m pofile photo
+[33m089c8ac[m progress
+[33m62657b4[m progress
+[33m37fb1c6[m progress
+[33m9065e14[m progress
+[33mb4a37f0[m progress
+[33mdb4f7a3[m progress
+[33me8dc152[m progress
+[33m767592f[m progress
+[33m5da9781[m progress
+[33mc4265a1[m progress
+[33ma074459[m progress
+[33m658ec9b[m progress
+[33mab86242[m progress
+[33m8cf73cf[m progress
+[33mc625414[m progress
+[33m8704638[m progress
+[33mf2faf7e[m progress
+[33m8c978a9[m progress
+[33mb8dacf5[m progress
+[33m337c913[m progress
+[33mc93146b[m progress
+[33m35efad9[m progress
+[33m0bd70eb[m progress
+[33m992ca70[m Add project files.
+[33m01b3ab0[m Add .gitattributes and .gitignore.
