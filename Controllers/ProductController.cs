@@ -10,15 +10,6 @@ namespace ProductManagementSystem.Controllers;
 public class ProductController : Controller
 {
 
-	private static readonly string[] AllowedImageExtensions =
-{
-	".jpg",
-	".jpeg",
-	".png",
-	".gif"
-};
-
-	private const long MaxProductImageSize = 5 * 1024 * 1024;
 	private readonly IPdfService _pdfService;
 	private readonly IProductImageService _productImageService;
 	private readonly IProductService _productService;
@@ -145,39 +136,6 @@ public class ProductController : Controller
 			return BadRequest(ModelState);
 		}
 
-        if (images != null)
-        {
-            foreach (var image in images)
-            {
-                if (image.Length == 0)
-                {
-                    continue;
-                }
-
-                var extension =
-                    Path.GetExtension(image.FileName)
-                        .ToLowerInvariant();
-
-                if (!AllowedImageExtensions.Contains(extension))
-                {
-                    return BadRequest(new
-                    {
-                        success = false,
-                        message = "Only JPG, JPEG, PNG, and GIF images are allowed."
-                    });
-                }
-
-                if (image.Length > MaxProductImageSize)
-                {
-                    return BadRequest(new
-                    {
-                        success = false,
-                        message = "Product images must be 5 MB or smaller."
-                    });
-                }
-            }
-        }
-
 		await _productService.AddAsync(product);
 
         if (tagIds != null && tagIds.Any())
@@ -187,45 +145,11 @@ public class ProductController : Controller
                 tagIds);
         }
 
-        if (images != null)
-		{
-			var uploadPath = Path.Combine(
-				Directory.GetCurrentDirectory(),
-				"wwwroot",
-				"uploads",
-				"products");
-
-			Directory.CreateDirectory(uploadPath);
-
-			foreach (var image in images)
-			{
-                if (image.Length == 0)
-                {
-                    continue;
-                }
-
-                var extension =
-                    Path.GetExtension(image.FileName)
-                        .ToLowerInvariant();
-
-                var fileName = $"{Guid.NewGuid()}{extension}";
-                var filePath = Path.Combine(uploadPath, fileName);
-
-                using var stream = new FileStream(
-                    filePath,
-                    FileMode.Create);
-
-                await image.CopyToAsync(stream);
-
-                var productImage = new ProductImage
-                {
-                    ImageUrl = $"/uploads/products/{fileName}",
-                    ProductId = product.Id
-                };
-
-                _productImageService.AddProductImage(productImage);
-            }
-		}
+        var uploadResult = await _productImageService.AddProductImagesAsync(product.Id, userId, images);
+        if (!uploadResult.Success)
+        {
+            return BadRequest(new { success = false, message = uploadResult.ErrorMessage });
+        }
 
 		var products = await _productService.GetProductsAsync(
 			userId,
@@ -329,63 +253,11 @@ public class ProductController : Controller
         _productTagService.ReplaceProductTags(
     product.Id,
     tagIds ?? new List<int>());
-        if (images != null)
-		{
-			var uploadPath = Path.Combine(
-				Directory.GetCurrentDirectory(),
-				"wwwroot",
-				"uploads",
-				"products");
-
-			Directory.CreateDirectory(uploadPath);
-
-			foreach (var image in images)
-			{
-                if (image.Length == 0)
-                {
-                    continue;
-                }
-
-                var extension =
-                    Path.GetExtension(image.FileName)
-                        .ToLowerInvariant();
-
-                if (!AllowedImageExtensions.Contains(extension))
-                {
-                    return BadRequest(new
-                    {
-                        success = false,
-                        message = "Only JPG, JPEG, PNG, and GIF images are allowed."
-                    });
-                }
-
-                if (image.Length > MaxProductImageSize)
-                {
-                    return BadRequest(new
-                    {
-                        success = false,
-                        message = "Product images must be 5 MB or smaller."
-                    });
-                }
-
-                var fileName = $"{Guid.NewGuid()}{extension}";
-                var filePath = Path.Combine(uploadPath, fileName);
-
-                using var stream = new FileStream(
-                    filePath,
-                    FileMode.Create);
-
-                await image.CopyToAsync(stream);
-
-                var productImage = new ProductImage
-                {
-                    ImageUrl = $"/uploads/products/{fileName}",
-                    ProductId = product.Id
-                };
-
-                _productImageService.AddProductImage(productImage);
-            }
-		}
+        var uploadResult = await _productImageService.AddProductImagesAsync(product.Id, userId, images);
+        if (!uploadResult.Success)
+        {
+            return BadRequest(new { success = false, message = uploadResult.ErrorMessage });
+        }
 
 		var products = await _productService.GetProductsAsync(
 			userId,
@@ -491,21 +363,6 @@ public class ProductController : Controller
             return NotFound();
         }
 
-        foreach (var image in product.ProductImages)
-        {
-            var filePath = Path.Combine(
-                Directory.GetCurrentDirectory(),
-                "wwwroot",
-                image.ImageUrl.TrimStart('/').Replace(
-                    "/",
-                    Path.DirectorySeparatorChar.ToString()));
-
-            if (System.IO.File.Exists(filePath))
-            {
-                System.IO.File.Delete(filePath);
-            }
-        }
-
         await _productService.PermanentDeleteAsync(id, userId);
         return RedirectToAction(nameof(Deleted));
     }
@@ -527,21 +384,12 @@ public class ProductController : Controller
             return NotFound();
         }
 
-        var filePath = Path.Combine(
-            Directory.GetCurrentDirectory(),
-            "wwwroot",
-            image.ImageUrl.TrimStart('/').Replace(
-                "/",
-                Path.DirectorySeparatorChar.ToString()));
+        var deleted = await _productImageService.DeleteProductImageAsync(id, userId);
 
-        if (System.IO.File.Exists(filePath))
+        if (!deleted)
         {
-            System.IO.File.Delete(filePath);
+            return NotFound();
         }
-
-        _productImageService.DeleteProductImage(
-            id,
-            userId);
 
         return Json(new
         {
@@ -550,122 +398,44 @@ public class ProductController : Controller
     }
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> ReplaceImage(
-    int id,
-    IFormFile? image)
+    public async Task<IActionResult> ReplaceImage(int id, IFormFile? image)
     {
-        var userId =
-            User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-        var existingImage =
-            _productImageService.GetProductImageById(
-                id,
-                userId);
+        var result = await _productImageService.ReplaceProductImageAsync(
+            id,
+            userId,
+            image);
 
-        if (existingImage == null)
-        {
-            return NotFound();
-        }
-
-        if (image == null || image.Length == 0)
+        if (!result.Success)
         {
             return BadRequest(new
             {
                 success = false,
-                message = "Please select an image."
+                message = result.ErrorMessage
             });
         }
-
-        ModelState.Clear();
-
-        var extension =
-            Path.GetExtension(image.FileName)
-                .ToLowerInvariant();
-
-        if (!AllowedImageExtensions.Contains(extension))
-        {
-            return BadRequest(new
-            {
-                success = false,
-                message = "Only JPG, JPEG, PNG, and GIF images are allowed."
-            });
-        }
-
-        if (image.Length > MaxProductImageSize)
-        {
-            return BadRequest(new
-            {
-                success = false,
-                message = "Product images must be 5 MB or smaller."
-            });
-        }
-
-        var uploadPath = Path.Combine(
-            Directory.GetCurrentDirectory(),
-            "wwwroot",
-            "uploads",
-            "products");
-
-        Directory.CreateDirectory(uploadPath);
-
-        var newFileName =
-            $"{Guid.NewGuid()}{extension}";
-
-        var newFilePath =
-            Path.Combine(uploadPath, newFileName);
-
-        using (var stream = new FileStream(
-            newFilePath,
-            FileMode.Create))
-        {
-            await image.CopyToAsync(stream);
-        }
-
-        var oldFilePath = Path.Combine(
-            Directory.GetCurrentDirectory(),
-            "wwwroot",
-            existingImage.ImageUrl
-                .TrimStart('/')
-                .Replace(
-                    "/",
-                    Path.DirectorySeparatorChar.ToString()));
-
-        if (System.IO.File.Exists(oldFilePath))
-        {
-            System.IO.File.Delete(oldFilePath);
-        }
-
-        existingImage.ImageUrl =
-            $"/uploads/products/{newFileName}";
-
-        _productImageService.UpdateProductImage(
-            existingImage);
 
         return Json(new
         {
             success = true
         });
     }
+
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public IActionResult SetPrimaryImage(int id)
+    public async Task<IActionResult> SetPrimaryImage(int id)
     {
-        var userId =
-            User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-        var image =
-            _productImageService.GetProductImageById(
-                id,
-                userId);
+        var result = await _productImageService.SetPrimaryImageAsync(
+            id,
+            userId);
 
-        if (image == null)
+        if (!result)
         {
             return NotFound();
         }
-
-        _productImageService.SetPrimaryImage(
-            id,
-            userId);
 
         return Json(new
         {
