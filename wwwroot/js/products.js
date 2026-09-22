@@ -108,19 +108,34 @@ function createProduct(event) {
     event.preventDefault();
 
     const form = document.getElementById("productForm");
+    const validationError = validateProductImages(form);
+
+    if (validationError) {
+        alert(validationError);
+        return;
+    }
 
     fetch("/Product/Create", {
         method: "POST",
         body: new FormData(form)
     })
-        .then(response => {
+        .then(async response => {
+            const text = await response.text();
+
             if (!response.ok) {
-                throw new Error(
-                    "Create failed: " + response.status
-                );
+                let message = "Unable to create the product.";
+
+                try {
+                    const error = JSON.parse(text);
+                    message = error.message || message;
+                } catch {
+                    // Keep the generic message if the server did not return JSON.
+                }
+
+                throw new Error(message);
             }
 
-            return response.text();
+            return text;
         })
         .then(html => {
             document.getElementById(
@@ -131,7 +146,35 @@ function createProduct(event) {
         })
         .catch(error => {
             console.error(error);
+            alert(error.message);
         });
+}
+
+function validateProductImages(form) {
+    const input = form.querySelector('input[name="images"]');
+
+    if (!input || !input.files) {
+        return null;
+    }
+
+    const allowedExtensions = [".jpg", ".jpeg", ".png", ".gif"];
+    const maxSize = 5 * 1024 * 1024;
+
+    for (const file of input.files) {
+        const extension = file.name
+            .substring(file.name.lastIndexOf("."))
+            .toLowerCase();
+
+        if (!allowedExtensions.includes(extension)) {
+            return "Only JPG, JPEG, PNG, and GIF images are allowed.";
+        }
+
+        if (file.size > maxSize) {
+            return "Product images must be 5 MB or smaller.";
+        }
+    }
+
+    return null;
 }
 
 function showDetails(id) {
@@ -184,6 +227,12 @@ function updateProduct(event) {
     event.preventDefault();
 
     const form = document.getElementById("productForm");
+    const validationError = validateProductImages(form);
+
+    if (validationError) {
+        alert(validationError);
+        return;
+    }
 
     const formData = new FormData(form);
     const idInput = form.querySelector('input[name="Id"]');
@@ -196,17 +245,25 @@ function updateProduct(event) {
         method: "POST",
         body: formData
     })
-        .then(response => {
+        .then(async response => {
+            const text = await response.text();
+
             if (!response.ok) {
-                throw new Error(
-                    "Update failed: " + response.status
-                );
+                let message = "Unable to update the product.";
+
+                try {
+                    const error = JSON.parse(text);
+                    message = error.message || message;
+                } catch {
+                    // Keep the generic message if the server did not return JSON.
+                }
+
+                throw new Error(message);
             }
 
-            return response.text();
+            return text;
         })
         .then(html => {
-
             document.getElementById(
                 "productList"
             ).innerHTML = html;
@@ -215,6 +272,7 @@ function updateProduct(event) {
         })
         .catch(error => {
             console.error(error);
+            alert(error.message);
         });
 }
 
