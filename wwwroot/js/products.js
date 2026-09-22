@@ -113,20 +113,20 @@ function createProduct(event) {
         method: "POST",
         body: new FormData(form)
     })
-        .then(response => {
+        .then(async response => {
+            const text = await response.text();
+
             if (!response.ok) {
+                console.error("Create failed:", response.status, text);
                 throw new Error(
-                    "Create failed: " + response.status
+                    "Create failed: " + response.status + "\n" + text
                 );
             }
 
-            return response.text();
+            return text;
         })
         .then(html => {
-            document.getElementById(
-                "productList"
-            ).innerHTML = html;
-
+            document.getElementById("productList").innerHTML = html;
             document.getElementById("modal").innerHTML = "";
         })
         .catch(error => {
